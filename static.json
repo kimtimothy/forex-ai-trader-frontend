@@ -5,7 +5,7 @@
   },
   "proxies": {
     "/api/": {
-      "origin": "https://git.heroku.com/forex-ai-trader-backend.git/api"
+      "origin": "https://forex-ai-trade-backend.vercel.app/api"
     }
   }
 } 

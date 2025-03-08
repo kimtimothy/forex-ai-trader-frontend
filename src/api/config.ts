@@ -1,1 +1,1 @@
-export const API_URL = process.env.REACT_APP_API_URL || 'https://your-backend-app-name.herokuapp.com'; 
+export const API_URL = process.env.REACT_APP_API_URL || 'https://forex-ai-trade-backend.vercel.app/'; 
