@@ -45,51 +45,64 @@ interface Performance {
   };
 }
 
+interface ModelPrediction {
+  prediction: number;
+  confidence: number;
+  was_correct: boolean;
+}
+
 interface Trade {
   timestamp: string;
   profit_loss: number;
+  pair: string;
   model_predictions: {
-    [key: string]: {
-      prediction: number;
-      confidence: number;
-      was_correct: boolean;
-    };
+    random_forest: ModelPrediction;
+    xgboost: ModelPrediction;
+    lightgbm: ModelPrediction;
+    [key: string]: ModelPrediction;
   };
 }
 
 const calculatePerformanceFromTrades = (trades: Trade[]) => {
-  const totalTrades = trades.length;
-  const winningTrades = trades.filter(t => t.profit_loss > 0).length;
-  const totalProfit = trades.reduce((sum, t) => sum + t.profit_loss, 0);
-  
-  // Calculate model performance
-  const modelPerformance: { [key: string]: ModelPerformance } = {};
-  
+  // Group trades by pair
+  const tradesByPair: { [key: string]: Trade[] } = {};
   trades.forEach(trade => {
-    if (trade.model_predictions) {
-      Object.entries(trade.model_predictions).forEach(([model, data]) => {
-        if (!modelPerformance[model]) {
-          modelPerformance[model] = { accuracy: 0, correct: 0, total: 0 };
-        }
-        modelPerformance[model].total += 1;
-        if (data.was_correct) {
-          modelPerformance[model].correct += 1;
-        }
-      });
+    if (!tradesByPair[trade.pair]) {
+      tradesByPair[trade.pair] = [];
     }
+    tradesByPair[trade.pair].push(trade);
   });
 
-  // Calculate accuracy for each model that has data
-  Object.keys(modelPerformance).forEach(model => {
-    if (modelPerformance[model].total > 0) {
-      modelPerformance[model].accuracy = modelPerformance[model].correct / modelPerformance[model].total;
-    }
+  // Calculate performance for each pair and model
+  const modelPerformance: { [key: string]: ModelPerformance } = {};
+  const modelTypes = ['random_forest', 'xgboost', 'lightgbm'];
+  
+  Object.entries(tradesByPair).forEach(([pair, pairTrades]) => {
+    modelTypes.forEach(modelType => {
+      const modelKey = `${pair}_${modelType}`;
+      const modelTrades = pairTrades.filter(t => t.model_predictions[modelType]);
+      
+      if (modelTrades.length > 0) {
+        modelPerformance[modelKey] = {
+          accuracy: 0,
+          correct: modelTrades.filter(t => t.model_predictions[modelType].was_correct).length,
+          total: modelTrades.length
+        };
+        
+        if (modelPerformance[modelKey].total > 0) {
+          modelPerformance[modelKey].accuracy = 
+            modelPerformance[modelKey].correct / modelPerformance[modelKey].total;
+        }
+      }
+    });
   });
   
+  console.log('Debug - Model Performance:', modelPerformance);
+  
   return {
-    total_trades: totalTrades,
-    win_rate: totalTrades ? winningTrades / totalTrades : 0,
-    total_profit: totalProfit,
+    total_trades: trades.length,
+    win_rate: trades.length ? trades.filter(t => t.profit_loss > 0).length / trades.length : 0,
+    total_profit: trades.reduce((sum, t) => sum + t.profit_loss, 0),
     profit_factor: 1,
     model_performance: modelPerformance
   };
@@ -109,8 +122,19 @@ const TradingDashboard: React.FC = () => {
       const formattedTrades = tradesData.map((trade: any) => ({
         timestamp: trade.timestamp || new Date().toISOString(),
         profit_loss: Number(trade.profit || 0),
+        pair: trade.pair || '',
         model_predictions: trade.model_predictions || {
-          'default_model': {
+          random_forest: {
+            prediction: 0,
+            confidence: 0,
+            was_correct: false
+          },
+          xgboost: {
+            prediction: 0,
+            confidence: 0,
+            was_correct: false
+          },
+          lightgbm: {
             prediction: 0,
             confidence: 0,
             was_correct: false
