@@ -188,12 +188,16 @@ const TradingDashboard: React.FC = () => {
     labels: Object.keys(performance.model_performance),
     datasets: [{
       label: 'Model Accuracy (%)',
-      data: Object.values(performance.model_performance).map(m => m.accuracy * 100),
+      data: Object.values(performance.model_performance).map(m => (m.accuracy || 0) * 100),
       backgroundColor: '#2196F3',
       borderColor: '#1976D2',
       borderWidth: 1
     }]
   } : null;
+
+  // Add debug logging
+  console.log('Model Chart Data:', modelChartData);
+  console.log('Performance model data:', performance?.model_performance);
 
   return (
     <Box sx={{ mt: 4 }}>
@@ -266,10 +270,14 @@ const TradingDashboard: React.FC = () => {
             <Typography variant="h6" gutterBottom>
               Model Performance
             </Typography>
-            {modelChartData && (
+            {modelChartData && Object.keys(performance?.model_performance || {}).length > 0 ? (
               <Box sx={{ height: 300 }}>
                 <Bar data={modelChartData} options={chartOptions} />
               </Box>
+            ) : (
+              <Typography variant="body2" color="textSecondary" align="center">
+                No model performance data available
+              </Typography>
             )}
           </Paper>
         </Grid>
