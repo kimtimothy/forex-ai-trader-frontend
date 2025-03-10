@@ -26,17 +26,22 @@ ChartJS.register(
   Legend
 );
 
+interface ModelPerformance {
+  accuracy: number;
+  correct: number;
+  total: number;
+}
+
 interface Performance {
   total_trades: number;
   win_rate: number;
   total_profit: number;
   profit_factor: number;
   model_performance: {
-    [key: string]: {
-      accuracy: number;
-      correct: number;
-      total: number;
-    };
+    random_forest?: ModelPerformance;
+    xgboost?: ModelPerformance;
+    lightgbm?: ModelPerformance;
+    [key: string]: ModelPerformance | undefined;
   };
 }
 
@@ -58,7 +63,11 @@ const calculatePerformanceFromTrades = (trades: Trade[]) => {
   const totalProfit = trades.reduce((sum, t) => sum + t.profit_loss, 0);
   
   // Calculate model performance
-  const modelPerformance: { [key: string]: { accuracy: number; correct: number; total: number } } = {};
+  const modelPerformance: { [key: string]: ModelPerformance } = {
+    random_forest: { accuracy: 0, correct: 0, total: 0 },
+    xgboost: { accuracy: 0, correct: 0, total: 0 },
+    lightgbm: { accuracy: 0, correct: 0, total: 0 }
+  };
   
   trades.forEach(trade => {
     if (trade.model_predictions) {
@@ -188,7 +197,7 @@ const TradingDashboard: React.FC = () => {
     labels: Object.keys(performance.model_performance),
     datasets: [{
       label: 'Model Accuracy (%)',
-      data: Object.values(performance.model_performance).map(m => (m.accuracy || 0) * 100),
+      data: Object.values(performance.model_performance).map(m => (m?.accuracy || 0) * 100),
       backgroundColor: '#2196F3',
       borderColor: '#1976D2',
       borderWidth: 1
