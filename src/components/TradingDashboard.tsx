@@ -12,6 +12,7 @@ import {
   Legend
 } from 'chart.js';
 import { Paper, Grid, Typography, Box } from '@mui/material';
+import { tradingApi } from '../services/api';
 
 // Register ChartJS components
 ChartJS.register(
@@ -54,17 +55,16 @@ interface Trade {
 const TradingDashboard: React.FC = () => {
   const [performance, setPerformance] = useState<Performance | null>(null);
   const [trades, setTrades] = useState<Trade[]>([]);
+  const [base, setBase] = useState('BTC');
+  const [quote, setQuote] = useState('USD');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [perfResponse, tradesResponse] = await Promise.all([
-          fetch('/api/performance/BTC/USD'),
-          fetch('/api/trades/BTC/USD')
+        const [perfData, tradesData] = await Promise.all([
+          tradingApi.getPerformance(base, quote),
+          tradingApi.getPairTrades(base, quote)
         ]);
-
-        const perfData = await perfResponse.json();
-        const tradesData = await tradesResponse.json();
 
         setPerformance(perfData);
         setTrades(tradesData);
@@ -74,9 +74,9 @@ const TradingDashboard: React.FC = () => {
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 60000); // Update every minute
+    const interval = setInterval(fetchData, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [base, quote]);
 
   const chartOptions = {
     responsive: true,

@@ -35,6 +35,24 @@ export const tradingApi = {
         }
     },
     
+    getPerformance: async (pair: string) => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/performance/${pair}`);
+            return response.data;
+        } catch (error) {
+            return handleApiError(error, 'getPerformance');
+        }
+    },
+
+    getPairTrades: async (pair: string) => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/trades/${pair}`);
+            return response.data;
+        } catch (error) {
+            return handleApiError(error, 'getPairTrades');
+        }
+    },
+
     getChartData: async (pair: string, timeframe: string) => {
         const response = await axios.get(`${API_BASE_URL}/chart-data`, {
             params: { pair, timeframe }
