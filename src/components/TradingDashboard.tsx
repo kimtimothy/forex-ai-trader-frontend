@@ -100,17 +100,23 @@ const TradingDashboard: React.FC = () => {
   const fetchData = async () => {
     try {
       console.log('TradingDashboard: Starting fetch...');
-      // Just fetch trades for now since getPerformance is failing
       const tradesData = await tradingApi.getTrades();
       
       const formattedTrades = tradesData.map((trade: any) => ({
         timestamp: trade.timestamp || new Date().toISOString(),
         profit_loss: Number(trade.profit || 0),
-        model_predictions: trade.model_predictions || {}
+        model_predictions: trade.model_predictions || {
+          'default_model': {
+            prediction: 0,
+            confidence: 0,
+            was_correct: false
+          }
+        }
       }));
 
-      // Calculate performance metrics from trades
+      console.log('Formatted trades:', formattedTrades); // Debug log
       const performance = calculatePerformanceFromTrades(formattedTrades);
+      console.log('Calculated performance:', performance); // Debug log
       
       setPerformance(performance);
       setTrades(formattedTrades);
