@@ -11,7 +11,6 @@ export const tradingApi = {
     getPositions: async () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/positions`);
-            console.log('API Response:', response.data);  // Debug log
             return response.data;
         } catch (error) {
             return handleApiError(error, 'getPositions');
@@ -45,9 +44,7 @@ export const tradingApi = {
 
     getBotStatus: async () => {
         try {
-            console.log('API: Fetching bot status...');
             const response = await axios.get(`${API_BASE_URL}/bot/status`);
-            console.log('API: Bot status response:', response.data);
             return response.data;
         } catch (error) {
             return handleApiError(error, 'getBotStatus');

@@ -1,5 +1,6 @@
 import React from 'react';
 import Dashboard from './components/Dashboard';
+import TradingDashboard from './components/TradingDashboard';
 import { CssBaseline, Container, ThemeProvider, createTheme } from '@mui/material';
 
 // Create a theme with better visibility
@@ -16,6 +17,7 @@ function App() {
       <Container maxWidth="lg" sx={{ paddingTop: 4 }}>
         <h1>Trading Dashboard</h1>
         <Dashboard />
+        <TradingDashboard />
       </Container>
     </ThemeProvider>
   );
