@@ -63,11 +63,7 @@ const calculatePerformanceFromTrades = (trades: Trade[]) => {
   const totalProfit = trades.reduce((sum, t) => sum + t.profit_loss, 0);
   
   // Calculate model performance
-  const modelPerformance: { [key: string]: ModelPerformance } = {
-    random_forest: { accuracy: 0, correct: 0, total: 0 },
-    xgboost: { accuracy: 0, correct: 0, total: 0 },
-    lightgbm: { accuracy: 0, correct: 0, total: 0 }
-  };
+  const modelPerformance: { [key: string]: ModelPerformance } = {};
   
   trades.forEach(trade => {
     if (trade.model_predictions) {
@@ -83,12 +79,11 @@ const calculatePerformanceFromTrades = (trades: Trade[]) => {
     }
   });
 
-  // Calculate accuracy for each model
+  // Calculate accuracy for each model that has data
   Object.keys(modelPerformance).forEach(model => {
-    modelPerformance[model].accuracy = 
-      modelPerformance[model].total > 0 
-        ? modelPerformance[model].correct / modelPerformance[model].total 
-        : 0;
+    if (modelPerformance[model].total > 0) {
+      modelPerformance[model].accuracy = modelPerformance[model].correct / modelPerformance[model].total;
+    }
   });
   
   return {
