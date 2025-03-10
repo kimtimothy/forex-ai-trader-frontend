@@ -57,12 +57,37 @@ const calculatePerformanceFromTrades = (trades: Trade[]) => {
   const winningTrades = trades.filter(t => t.profit_loss > 0).length;
   const totalProfit = trades.reduce((sum, t) => sum + t.profit_loss, 0);
   
+  // Calculate model performance
+  const modelPerformance: { [key: string]: { accuracy: number; correct: number; total: number } } = {};
+  
+  trades.forEach(trade => {
+    if (trade.model_predictions) {
+      Object.entries(trade.model_predictions).forEach(([model, data]) => {
+        if (!modelPerformance[model]) {
+          modelPerformance[model] = { accuracy: 0, correct: 0, total: 0 };
+        }
+        modelPerformance[model].total += 1;
+        if (data.was_correct) {
+          modelPerformance[model].correct += 1;
+        }
+      });
+    }
+  });
+
+  // Calculate accuracy for each model
+  Object.keys(modelPerformance).forEach(model => {
+    modelPerformance[model].accuracy = 
+      modelPerformance[model].total > 0 
+        ? modelPerformance[model].correct / modelPerformance[model].total 
+        : 0;
+  });
+  
   return {
     total_trades: totalTrades,
     win_rate: totalTrades ? winningTrades / totalTrades : 0,
     total_profit: totalProfit,
-    profit_factor: 1, // Simplified for now
-    model_performance: {} // Add model performance calculation if needed
+    profit_factor: 1,
+    model_performance: modelPerformance
   };
 };
 
