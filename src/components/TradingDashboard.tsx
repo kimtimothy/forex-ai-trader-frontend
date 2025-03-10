@@ -11,7 +11,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
-import { Paper, Grid, Typography, Box } from '@mui/material';
+import { Paper, Grid, Typography, Box, CircularProgress } from '@mui/material';
 import { tradingApi } from '../services/api';
 
 // Register ChartJS components
@@ -55,28 +55,42 @@ interface Trade {
 const TradingDashboard: React.FC = () => {
   const [performance, setPerformance] = useState<Performance | null>(null);
   const [trades, setTrades] = useState<Trade[]>([]);
-  const [base, setBase] = useState('BTC');
-  const [quote, setQuote] = useState('USD');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [pair] = useState('BTC_USDT');
+
+  const fetchData = async () => {
+    try {
+      console.log('TradingDashboard: Starting fetch...');
+      const [perfData, tradesData] = await Promise.all([
+        tradingApi.getPerformance(pair),
+        tradingApi.getPairTrades(pair)
+      ]);
+
+      setPerformance(perfData);
+      setTrades(tradesData);
+      setError(null);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setError('Failed to fetch dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [perfData, tradesData] = await Promise.all([
-          tradingApi.getPerformance(base, quote),
-          tradingApi.getPairTrades(base, quote)
-        ]);
-
-        setPerformance(perfData);
-        setTrades(tradesData);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      }
-    };
-
     fetchData();
-    const interval = setInterval(fetchData, 60000);
+    const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
-  }, [base, quote]);
+  }, [pair]);
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" p={3}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   const chartOptions = {
     responsive: true,

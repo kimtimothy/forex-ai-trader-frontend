@@ -43,7 +43,6 @@ const TradeHistory: React.FC = () => {
         try {
             console.log('TradeHistory: Starting fetch...');
             const data = await tradingApi.getTrades();
-            console.log('TradeHistory: Received data:', data);
             
             // Ensure all required fields are present and properly formatted
             const formattedTrades = data.map((trade: any, index: number) => ({
