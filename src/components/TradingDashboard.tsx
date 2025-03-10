@@ -57,18 +57,23 @@ const TradingDashboard: React.FC = () => {
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [pair] = useState('BTC_USDT');
 
   const fetchData = async () => {
     try {
       console.log('TradingDashboard: Starting fetch...');
       const [perfData, tradesData] = await Promise.all([
-        tradingApi.getPerformance(pair),
-        tradingApi.getPairTrades(pair)
+        tradingApi.getPerformance(''),
+        tradingApi.getTrades()
       ]);
 
+      const formattedTrades = tradesData.map((trade: any) => ({
+        timestamp: trade.timestamp || new Date().toISOString(),
+        profit_loss: Number(trade.profit || 0),
+        model_predictions: trade.model_predictions || {}
+      }));
+
       setPerformance(perfData);
-      setTrades(tradesData);
+      setTrades(formattedTrades);
       setError(null);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -82,7 +87,7 @@ const TradingDashboard: React.FC = () => {
     fetchData();
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
-  }, [pair]);
+  }, []);
 
   if (loading) {
     return (
