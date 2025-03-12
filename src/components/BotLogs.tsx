@@ -15,25 +15,42 @@ const BotLogs: React.FC = () => {
     
     useEffect(() => {
         const socket = io(process.env.REACT_APP_API_URL || 'http://localhost:5000', {
-            transports: ['websocket', 'polling'],
+            transports: ['websocket'],
             reconnectionAttempts: 5,
-            reconnectionDelay: 1000
+            reconnectionDelay: 1000,
+            timeout: 60000,
+            forceNew: true
         });
         
         socket.on('connect', () => {
+            console.log('Socket connected:', socket.id);
             setError(null);
             setLogs(prev => [...prev, { message: 'Connected to bot server', level: 'INFO' }]);
         });
 
         socket.on('connect_error', (err) => {
+            console.error('Socket connection error:', err);
             setError(`Connection error: ${err.message}`);
+            
+            // If WebSocket fails, try polling
+            if (socket.io?.opts?.transports?.[0] === 'websocket') {
+                console.log('Falling back to polling transport');
+                socket.io.opts.transports = ['polling', 'websocket'];
+            }
+        });
+
+        socket.on('disconnect', (reason) => {
+            console.log('Socket disconnected:', reason);
+            setError(`Disconnected: ${reason}`);
         });
 
         socket.on('bot_log', (data: LogMessage) => {
+            console.log('Received bot log:', data);
             setLogs(prevLogs => [...prevLogs, data]);
         });
         
         return () => {
+            console.log('Cleaning up socket connection');
             socket.disconnect();
         };
     }, []);
