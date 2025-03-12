@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Paper, Typography, Box, Alert } from '@mui/material';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
 interface LogMessage {
     message: string;
@@ -11,37 +11,67 @@ interface LogMessage {
 const BotLogs: React.FC = () => {
     const [logs, setLogs] = useState<LogMessage[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [connectionAttempts, setConnectionAttempts] = useState(0);
     const logsEndRef = useRef<null | HTMLDivElement>(null);
+    const socketRef = useRef<Socket | null>(null);
     
-    useEffect(() => {
+    const connectSocket = () => {
+        if (socketRef.current?.connected) {
+            console.log('Socket already connected, skipping connection attempt');
+            return;
+        }
+
+        console.log('Attempting to connect to socket...');
+        setConnectionAttempts(prev => prev + 1);
+
         const socket = io(process.env.REACT_APP_API_URL || 'http://localhost:5000', {
-            transports: ['websocket'],
+            transports: connectionAttempts < 2 ? ['websocket'] : ['polling', 'websocket'],
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,
             timeout: 60000,
-            forceNew: true
+            forceNew: true,
+            path: '/socket.io'
         });
-        
+
+        socketRef.current = socket;
+
         socket.on('connect', () => {
             console.log('Socket connected:', socket.id);
             setError(null);
-            setLogs(prev => [...prev, { message: 'Connected to bot server', level: 'INFO' }]);
+            setLogs(prev => [...prev, { 
+                message: `Connected to bot server (${connectionAttempts > 0 ? 'reconnected' : 'initial'})`, 
+                level: 'INFO' 
+            }]);
+        });
+
+        socket.on('connection_status', (data) => {
+            console.log('Connection status:', data);
         });
 
         socket.on('connect_error', (err) => {
             console.error('Socket connection error:', err);
             setError(`Connection error: ${err.message}`);
             
-            // If WebSocket fails, try polling
-            if (socket.io?.opts?.transports?.[0] === 'websocket') {
-                console.log('Falling back to polling transport');
-                socket.io.opts.transports = ['polling', 'websocket'];
+            if (connectionAttempts < 2) {
+                console.log('Retrying connection with different transport...');
+                socket.disconnect();
+                setTimeout(connectSocket, 1000);
             }
         });
 
         socket.on('disconnect', (reason) => {
             console.log('Socket disconnected:', reason);
             setError(`Disconnected: ${reason}`);
+            
+            if (reason === 'transport close' || reason === 'transport error') {
+                console.log('Transport issue, attempting reconnect...');
+                setTimeout(connectSocket, 1000);
+            }
+        });
+
+        socket.on('error', (error) => {
+            console.error('Socket error:', error);
+            setError(`Socket error: ${error.message}`);
         });
 
         socket.on('bot_log', (data: LogMessage) => {
@@ -52,6 +82,18 @@ const BotLogs: React.FC = () => {
         return () => {
             console.log('Cleaning up socket connection');
             socket.disconnect();
+            socketRef.current = null;
+        };
+    };
+    
+    useEffect(() => {
+        connectSocket();
+        
+        return () => {
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+                socketRef.current = null;
+            }
         };
     }, []);
     
