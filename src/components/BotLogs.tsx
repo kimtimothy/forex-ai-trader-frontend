@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Paper, Typography, Box } from '@mui/material';
+import { Paper, Typography, Box, Alert } from '@mui/material';
 import { io } from 'socket.io-client';
 
 interface LogMessage {
@@ -10,11 +10,25 @@ interface LogMessage {
 
 const BotLogs: React.FC = () => {
     const [logs, setLogs] = useState<LogMessage[]>([]);
+    const [error, setError] = useState<string | null>(null);
     const logsEndRef = useRef<null | HTMLDivElement>(null);
     
     useEffect(() => {
-        const socket = io(process.env.REACT_APP_API_URL || 'http://localhost:5000');
+        const socket = io(process.env.REACT_APP_API_URL || 'http://localhost:5000', {
+            transports: ['websocket', 'polling'],
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000
+        });
         
+        socket.on('connect', () => {
+            setError(null);
+            setLogs(prev => [...prev, { message: 'Connected to bot server', level: 'INFO' }]);
+        });
+
+        socket.on('connect_error', (err) => {
+            setError(`Connection error: ${err.message}`);
+        });
+
         socket.on('bot_log', (data: LogMessage) => {
             setLogs(prevLogs => [...prevLogs, data]);
         });
@@ -24,7 +38,6 @@ const BotLogs: React.FC = () => {
         };
     }, []);
     
-    // Auto scroll to bottom when new logs arrive
     useEffect(() => {
         logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [logs]);
@@ -37,12 +50,17 @@ const BotLogs: React.FC = () => {
                 mt: 2, 
                 height: '400px', 
                 overflowY: 'auto',
-                backgroundColor: '#1e1e1e'  // Dark background for logs
+                backgroundColor: '#1e1e1e'
             }}
         >
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom color="white">
                 Bot Logs
             </Typography>
+            {error && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                </Alert>
+            )}
             <Box sx={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                 {logs.map((log, index) => (
                     <Box 
