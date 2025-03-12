@@ -13,6 +13,7 @@ import {
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
 import { tradingApi } from '../services/api';
+import BotLogs from './BotLogs';
 
 const BotControl: React.FC = () => {
     const [isRunning, setIsRunning] = useState(false);
@@ -68,47 +69,50 @@ const BotControl: React.FC = () => {
     }, []);
 
     return (
-        <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                <Typography variant="h5" fontWeight="500">
-                    Trading Bot Control
-                </Typography>
-                <Chip
-                    label={isRunning ? 'Running' : 'Stopped'}
-                    color={isRunning ? 'success' : 'error'}
-                    variant="outlined"
-                />
-            </Box>
-
-            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-
-            <Stack direction="row" spacing={2} justifyContent="center">
-                <Button
-                    variant="contained"
-                    color="success"
-                    startIcon={<PlayArrowIcon />}
-                    onClick={handleStartBot}
-                    disabled={isRunning || loading}
-                >
-                    Start Bot
-                </Button>
-                <Button
-                    variant="contained"
-                    color="error"
-                    startIcon={<StopIcon />}
-                    onClick={handleStopBot}
-                    disabled={!isRunning || loading}
-                >
-                    Stop Bot
-                </Button>
-            </Stack>
-
-            {loading && (
-                <Box display="flex" justifyContent="center" mt={2}>
-                    <CircularProgress size={24} />
+        <>
+            <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+                    <Typography variant="h5" fontWeight="500">
+                        Trading Bot Control
+                    </Typography>
+                    <Chip
+                        label={isRunning ? 'Running' : 'Stopped'}
+                        color={isRunning ? 'success' : 'error'}
+                        variant="outlined"
+                    />
                 </Box>
-            )}
-        </Paper>
+
+                {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
+                <Stack direction="row" spacing={2} justifyContent="center">
+                    <Button
+                        variant="contained"
+                        color="success"
+                        startIcon={<PlayArrowIcon />}
+                        onClick={handleStartBot}
+                        disabled={isRunning || loading}
+                    >
+                        Start Bot
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="error"
+                        startIcon={<StopIcon />}
+                        onClick={handleStopBot}
+                        disabled={!isRunning || loading}
+                    >
+                        Stop Bot
+                    </Button>
+                </Stack>
+
+                {loading && (
+                    <Box display="flex" justifyContent="center" mt={2}>
+                        <CircularProgress size={24} />
+                    </Box>
+                )}
+            </Paper>
+            <BotLogs />
+        </>
     );
 };
 

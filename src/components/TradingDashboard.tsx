@@ -64,37 +64,31 @@ interface Trade {
 }
 
 const calculatePerformanceFromTrades = (trades: Trade[]) => {
-  // Group trades by pair
-  const tradesByPair: { [key: string]: Trade[] } = {};
-  trades.forEach(trade => {
-    if (!tradesByPair[trade.pair]) {
-      tradesByPair[trade.pair] = [];
-    }
-    tradesByPair[trade.pair].push(trade);
-  });
+  // Initialize model performance directly without grouping by pair
+  const modelPerformance: { [key: string]: ModelPerformance } = {
+    random_forest: { accuracy: 0, correct: 0, total: 0 },
+    xgboost: { accuracy: 0, correct: 0, total: 0 },
+    lightgbm: { accuracy: 0, correct: 0, total: 0 }
+  };
 
-  // Calculate performance for each pair and model
-  const modelPerformance: { [key: string]: ModelPerformance } = {};
-  const modelTypes = ['random_forest', 'xgboost', 'lightgbm'];
-  
-  Object.entries(tradesByPair).forEach(([pair, pairTrades]) => {
-    modelTypes.forEach(modelType => {
-      const modelKey = `${pair}_${modelType}`;
-      const modelTrades = pairTrades.filter(t => t.model_predictions[modelType]);
-      
-      if (modelTrades.length > 0) {
-        modelPerformance[modelKey] = {
-          accuracy: 0,
-          correct: modelTrades.filter(t => t.model_predictions[modelType].was_correct).length,
-          total: modelTrades.length
-        };
-        
-        if (modelPerformance[modelKey].total > 0) {
-          modelPerformance[modelKey].accuracy = 
-            modelPerformance[modelKey].correct / modelPerformance[modelKey].total;
+  // Calculate performance for each model type across all trades
+  trades.forEach(trade => {
+    Object.entries(trade.model_predictions).forEach(([modelType, prediction]) => {
+      if (modelPerformance[modelType]) {
+        modelPerformance[modelType].total += 1;
+        if (prediction.was_correct) {
+          modelPerformance[modelType].correct += 1;
         }
       }
     });
+  });
+
+  // Calculate accuracy for each model
+  Object.keys(modelPerformance).forEach(modelType => {
+    if (modelPerformance[modelType].total > 0) {
+      modelPerformance[modelType].accuracy = 
+        modelPerformance[modelType].correct / modelPerformance[modelType].total;
+    }
   });
   
   console.log('Debug - Model Performance:', modelPerformance);
@@ -142,7 +136,6 @@ const TradingDashboard: React.FC = () => {
         }
       }));
 
-      console.log('Formatted trades:', formattedTrades); // Debug log
       const performance = calculatePerformanceFromTrades(formattedTrades);
       console.log('Calculated performance:', performance); // Debug log
       
