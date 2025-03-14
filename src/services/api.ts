@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://forex-ai-trader-backend-0b07293d3688.herokuapp.com/api';  // Changed from localhost to 127.0.0.1
+const API_BASE_URL = 'http://localhost:5001/api';  // Changed from localhost to 127.0.0.1
 
 const handleApiError = (error: any, endpoint: string) => {
     console.error(`Error in ${endpoint}:`, error);
