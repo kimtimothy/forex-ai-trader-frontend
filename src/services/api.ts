@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5001/api';  // Changed from localhost to 127.0.0.1
+const API_BASE_URL = `${process.env.REACT_APP_API_URL}/api`;
 
 const handleApiError = (error: any, endpoint: string) => {
     console.error(`Error in ${endpoint}:`, error);
