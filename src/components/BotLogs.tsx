@@ -24,12 +24,7 @@ const BotLogs: React.FC = () => {
             return;
         }
 
-        // Clear any existing reconnection timeout
-        if (reconnectTimeoutRef.current) {
-            clearTimeout(reconnectTimeoutRef.current);
-        }
-
-        const backendUrl = getWebSocketUrl();
+        const backendUrl = 'https://forex-ai-trader-backend-0b07293d3688.herokuapp.com';
         console.log(`Attempting to connect to socket at ${backendUrl}...`);
         setConnectionAttempts(prev => prev + 1);
 
@@ -41,7 +36,7 @@ const BotLogs: React.FC = () => {
             reconnectionDelayMax: 5000,
             timeout: 60000,
             forceNew: true,
-            path: '/socket.io/',
+            path: '/socket.io',
             withCredentials: true,
             auth: {
                 timestamp: Date.now()
