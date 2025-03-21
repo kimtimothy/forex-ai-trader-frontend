@@ -1,18 +1,21 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://forex-ai-trader-backend-0b07293d3688.herokuapp.com';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://forex-ai-trader-backend-0b07293d3688.herokuapp.com';
 
-// Create axios instance with base configuration
-const axiosInstance = axios.create({
+// Configure axios defaults
+axios.defaults.withCredentials = true;
+axios.defaults.headers.common['Access-Control-Allow-Origin'] = 'https://forex-ai-trader-frontend-7951b3342477.herokuapp.com';
+
+const api = axios.create({
     baseURL: API_BASE_URL,
-    withCredentials: true,
+    timeout: 10000, // 10 second timeout
     headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
     }
 });
 
 // Add response interceptor for better error handling
-axiosInstance.interceptors.response.use(
+api.interceptors.response.use(
     response => response,
     error => {
         console.error('API Error:', {
@@ -35,10 +38,14 @@ const handleApiError = (error: any, endpoint: string) => {
     throw error;
 };
 
-export const api = {
+export const tradingApi = {
     getPositions: async () => {
         try {
-            const response = await axiosInstance.get('/api/positions');
+            const response = await axios.get(`${API_BASE_URL}/api/positions`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
             return response.data;
         } catch (error) {
             console.error('Error fetching positions:', error);
@@ -48,7 +55,7 @@ export const api = {
     
     getTrades: async () => {
         try {
-            const response = await axiosInstance.get('/api/trades');
+            const response = await api.get('/api/trades');
             console.log('getTrades response:', response.data);
             return response.data;
         } catch (error) {
@@ -59,7 +66,7 @@ export const api = {
     
     getStats: async () => {
         try {
-            const response = await axiosInstance.get('/api/stats');
+            const response = await api.get('/api/stats');
             console.log('getStats response:', response.data);
             return response.data;
         } catch (error) {
