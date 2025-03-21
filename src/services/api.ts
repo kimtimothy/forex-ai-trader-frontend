@@ -55,7 +55,7 @@ export const tradingApi = {
     
     getTrades: async () => {
         try {
-            const response = await api.get('/api/trades');
+            const response = await  axios.get(`${API_BASE_URL}/api/trades`);
             console.log('getTrades response:', response.data);
             return response.data;
         } catch (error) {
@@ -66,7 +66,7 @@ export const tradingApi = {
     
     getStats: async () => {
         try {
-            const response = await api.get('/api/stats');
+            const response = await axios.get(`${API_BASE_URL}/api/stats`);
             console.log('getStats response:', response.data);
             return response.data;
         } catch (error) {
