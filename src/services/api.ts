@@ -1,17 +1,18 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://forex-ai-trader-backend-0b07293d3688.herokuapp.com';
+const API_BASE_URL = 'https://forex-ai-trader-backend-0b07293d3688.herokuapp.com';
 
-const api = axios.create({
+// Create axios instance with base configuration
+const axiosInstance = axios.create({
     baseURL: API_BASE_URL,
-    timeout: 10000, // 10 second timeout
+    withCredentials: true,
     headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
     }
 });
 
 // Add response interceptor for better error handling
-api.interceptors.response.use(
+axiosInstance.interceptors.response.use(
     response => response,
     error => {
         console.error('API Error:', {
@@ -34,19 +35,21 @@ const handleApiError = (error: any, endpoint: string) => {
     throw error;
 };
 
-export const tradingApi = {
+export const api = {
     getPositions: async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/positions`);
+            const response = await axiosInstance.get('/api/positions');
             return response.data;
         } catch (error) {
-            return handleApiError(error, 'getPositions');
+            console.error('Error fetching positions:', error);
+            throw error;
         }
     },
     
     getTrades: async () => {
         try {
-            const response = await api.get('/api/trades');
+            const response = await axiosInstance.get('/api/trades');
+            console.log('getTrades response:', response.data);
             return response.data;
         } catch (error) {
             console.error('Error in getTrades:', error);
@@ -56,7 +59,8 @@ export const tradingApi = {
     
     getStats: async () => {
         try {
-            const response = await api.get('/api/stats');
+            const response = await axiosInstance.get('/api/stats');
+            console.log('getStats response:', response.data);
             return response.data;
         } catch (error) {
             console.error('Error in getStats:', error);
