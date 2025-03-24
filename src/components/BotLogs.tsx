@@ -63,12 +63,12 @@ const BotLogs: React.FC = () => {
         setConnectionAttempts(prev => prev + 1);
 
         const socket = io(backendUrl, {
-            transports: ['polling', 'websocket'],  // Try polling first, then upgrade to WebSocket
+            transports: ['websocket'],  // Use only WebSocket transport
             reconnection: true,
-            reconnectionAttempts: 5,  // Match backend setting
+            reconnectionAttempts: 3,  // Match backend setting
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,
-            timeout: 60000,  // Match backend ping timeout
+            timeout: 30000,  // Match backend ping timeout
             forceNew: true,
             path: '/socket.io',
             withCredentials: true,
@@ -79,8 +79,8 @@ const BotLogs: React.FC = () => {
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache'
             },
-            upgrade: true,  // Allow transport upgrade
-            rememberUpgrade: true,  // Remember successful upgrades
+            upgrade: false,  // Disable transport upgrade
+            rememberUpgrade: false,  // Don't remember upgrades
             secure: true,
             rejectUnauthorized: false,
             autoConnect: true,
@@ -91,44 +91,25 @@ const BotLogs: React.FC = () => {
 
         socket.on('connect', () => {
             console.log('Socket connected:', socket.id);
-            console.log('Transport:', socket.io.engine.transport.name);
             setError(null);
             setIsConnected(true);
             setConnectionAttempts(0);
             setLogs(prev => [...prev, { 
-                message: `Connected to bot server (${connectionAttempts > 0 ? 'reconnected' : 'initial'}) via ${socket.io.engine.transport.name}`, 
+                message: `Connected to bot server (${connectionAttempts > 0 ? 'reconnected' : 'initial'})`, 
                 level: 'INFO',
                 timestamp: new Date().toISOString()
             }]);
         });
 
-        socket.on('connection_status', (data) => {
-            console.log('Connection status:', data);
-            if (data.status === 'connected') {
-                setIsConnected(true);
-                setError(null);
-                setConnectionAttempts(0);
-                if (data.transport) {
-                    console.log('Connected via transport:', data.transport);
-                }
-            }
-        });
-
         socket.on('connect_error', (err: any) => {
             console.error('Socket connection error:', err);
-            console.error('Error details:', {
-                message: err.message,
-                description: err.description || 'No description',
-                type: err.type || 'Unknown type',
-                context: err.context || 'No context'
-            });
             setIsConnected(false);
             setError(`Connection error: ${err.message}`);
             
             // Implement exponential backoff for reconnection
-            const backoffDelay = Math.min(1000 * Math.pow(2, connectionAttempts), 10000);
+            const backoffDelay = Math.min(1000 * Math.pow(2, connectionAttempts), 5000);
             reconnectTimeoutRef.current = setTimeout(() => {
-                if (!socket.connected && connectionAttempts < 5) {
+                if (!socket.connected && connectionAttempts < 3) {
                     console.log(`Retrying connection after ${backoffDelay}ms...`);
                     socket.disconnect();
                     connectSocket();
@@ -138,7 +119,6 @@ const BotLogs: React.FC = () => {
 
         socket.on('disconnect', (reason) => {
             console.log('Socket disconnected:', reason);
-            console.log('Transport:', socket.io.engine.transport.name);
             setIsConnected(false);
             setError(`Disconnected: ${reason}`);
             
@@ -147,7 +127,7 @@ const BotLogs: React.FC = () => {
                 socket.connect();
             } else if (reason === 'transport close' || reason === 'transport error') {
                 // Transport issues, attempt reconnect with backoff
-                const backoffDelay = Math.min(1000 * Math.pow(2, connectionAttempts), 10000);
+                const backoffDelay = Math.min(1000 * Math.pow(2, connectionAttempts), 5000);
                 reconnectTimeoutRef.current = setTimeout(connectSocket, backoffDelay);
             }
         });
@@ -160,10 +140,6 @@ const BotLogs: React.FC = () => {
         socket.on('transport_error', (error) => {
             console.error('Transport error:', error);
             setError(`Transport error: ${typeof error === 'string' ? error : error.message}`);
-        });
-
-        socket.on('upgrade', (transport) => {
-            console.log('Transport upgraded to:', transport.name);
         });
 
         socket.on('bot_log', (data: LogMessage) => {
@@ -188,7 +164,7 @@ const BotLogs: React.FC = () => {
             if (socket.connected) {
                 socket.emit('ping');
             }
-        }, 25000); // Match backend ping interval
+        }, 15000); // Match backend ping interval
 
         return socket;
     }, [connectionAttempts]);
