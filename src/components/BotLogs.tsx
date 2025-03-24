@@ -47,6 +47,7 @@ const BotLogs: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [connectionAttempts, setConnectionAttempts] = useState(0);
     const [isConnected, setIsConnected] = useState(false);
+    const [isBotRunning, setIsBotRunning] = useState(false);
     const logsEndRef = useRef<null | HTMLDivElement>(null);
     const socketRef = useRef<Socket | null>(null);
     const reconnectTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
@@ -54,7 +55,7 @@ const BotLogs: React.FC = () => {
     const connectSocket = useCallback(() => {
         if (socketRef.current?.connected) {
             console.log('Socket already connected, skipping connection attempt');
-            return;
+            return socketRef.current;
         }
 
         const backendUrl = 'https://forex-ai-trader-backend-0b07293d3688.herokuapp.com';
@@ -173,6 +174,15 @@ const BotLogs: React.FC = () => {
             setLogs(prevLogs => [...prevLogs, data]);
         });
 
+        socket.on('bot_status_change', (data) => {
+            console.log('Bot status changed:', data);
+            setIsBotRunning(data.status === 'running');
+            if (data.status !== 'running') {
+                // Clear logs when bot stops
+                setLogs([]);
+            }
+        });
+
         // Ping to keep connection alive
         const pingInterval = setInterval(() => {
             if (socket.connected) {
@@ -180,18 +190,11 @@ const BotLogs: React.FC = () => {
             }
         }, 25000); // Every 25 seconds
 
-        return () => {
-            clearInterval(pingInterval);
-            if (reconnectTimeoutRef.current) {
-                clearTimeout(reconnectTimeoutRef.current);
-            }
-            socket.disconnect();
-            socketRef.current = null;
-        };
+        return socket;
     }, [connectionAttempts]);
     
     useEffect(() => {
-        connectSocket();
+        const socket = connectSocket();
         
         return () => {
             if (socketRef.current) {
@@ -281,6 +284,11 @@ const BotLogs: React.FC = () => {
             {error && (
                 <Alert severity="error" sx={{ mb: 2 }}>
                     {error}
+                </Alert>
+            )}
+            {!isBotRunning && (
+                <Alert severity="info" sx={{ mb: 2 }}>
+                    Bot is not running. Analysis logs will appear here when the bot is started.
                 </Alert>
             )}
             <Box sx={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
