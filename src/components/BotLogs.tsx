@@ -63,12 +63,12 @@ const BotLogs: React.FC = () => {
         setConnectionAttempts(prev => prev + 1);
 
         const socket = io(backendUrl, {
-            transports: ['websocket'],  // Use only WebSocket transport
+            transports: ['websocket'],
             reconnection: true,
-            reconnectionAttempts: 3,  // Match backend setting
+            reconnectionAttempts: 3,
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,
-            timeout: 30000,  // Match backend ping timeout
+            timeout: 30000,
             forceNew: true,
             path: '/socket.io',
             withCredentials: true,
@@ -79,8 +79,8 @@ const BotLogs: React.FC = () => {
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache'
             },
-            upgrade: false,  // Disable transport upgrade
-            rememberUpgrade: false,  // Don't remember upgrades
+            upgrade: false,
+            rememberUpgrade: false,
             secure: true,
             rejectUnauthorized: false,
             autoConnect: true,
@@ -164,7 +164,7 @@ const BotLogs: React.FC = () => {
             if (socket.connected) {
                 socket.emit('ping');
             }
-        }, 15000); // Match backend ping interval
+        }, 15000);
 
         return socket;
     }, [connectionAttempts]);
