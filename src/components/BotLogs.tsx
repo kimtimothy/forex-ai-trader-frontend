@@ -99,6 +99,9 @@ const BotLogs: React.FC = () => {
                 level: 'INFO',
                 timestamp: new Date().toISOString()
             }]);
+            
+            // Request initial bot status
+            socket.emit('get_bot_status');
         });
 
         socket.on('connect_error', (err: any) => {
@@ -147,7 +150,11 @@ const BotLogs: React.FC = () => {
             if (!data.timestamp) {
                 data.timestamp = new Date().toISOString();
             }
-            setLogs(prevLogs => [...prevLogs, data]);
+            setLogs(prevLogs => {
+                const newLogs = [...prevLogs, data];
+                console.log('Updated logs:', newLogs);
+                return newLogs;
+            });
         });
 
         socket.on('bot_status_change', (data) => {
@@ -157,6 +164,22 @@ const BotLogs: React.FC = () => {
                 // Clear logs when bot stops
                 setLogs([]);
             }
+        });
+
+        // Add handler for bot status response
+        socket.on('bot_status', (data) => {
+            console.log('Received bot status:', data);
+            setIsBotRunning(data.status === 'running');
+            if (data.status === 'running') {
+                // Request logs when bot is running
+                socket.emit('get_bot_logs');
+            }
+        });
+
+        // Add handler for bot logs response
+        socket.on('bot_logs', (logs: LogMessage[]) => {
+            console.log('Received bot logs:', logs);
+            setLogs(logs);
         });
 
         // Ping to keep connection alive
