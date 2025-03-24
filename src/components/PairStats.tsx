@@ -16,16 +16,20 @@ import ShowChartIcon from '@mui/icons-material/ShowChart';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import { tradingApi } from '../services/api';
+import { TrendingDown, Warning } from '@mui/icons-material';
 
-interface PairStatistics {
+interface TradeStats {
     winRate: number;
     totalTrades: number;
     profitFactor: number;
     averageProfit: number;
+    lastTradeTime: string | null;
+    totalProfit: number;
+    maxDrawdown: number;
 }
 
 interface Stats {
-    [pair: string]: PairStatistics;
+    [pair: string]: TradeStats;
 }
 
 const StatItem: React.FC<{ icon: React.ReactNode; label: string; value: string; color?: string }> = ({ 
@@ -55,18 +59,17 @@ const PairStats: React.FC = () => {
 
     const fetchStats = async () => {
         try {
-            const data = await tradingApi.getStats();
-            console.log('PairStats: Received data:', data);
-            if (data && typeof data === 'object') {
-                setStats(data);
-                setError(null);
-            } else {
-                console.error('PairStats: Invalid data format:', data);
-                setError('Received invalid data format');
+            setLoading(true);
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/stats`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch stats');
             }
+            const data = await response.json();
+            setStats(data);
+            setError(null);
         } catch (err) {
             console.error('PairStats: Error details:', err);
-            setError('Failed to fetch pair statistics');
+            setError(err instanceof Error ? err.message : 'Failed to fetch stats');
         } finally {
             setLoading(false);
         }
@@ -74,7 +77,8 @@ const PairStats: React.FC = () => {
 
     useEffect(() => {
         fetchStats();
-        const interval = setInterval(fetchStats, 60000);
+        // Set up polling every 30 seconds
+        const interval = setInterval(fetchStats, 30000);
         return () => clearInterval(interval);
     }, []);
 
@@ -86,13 +90,26 @@ const PairStats: React.FC = () => {
         );
     }
 
+    if (error) {
+        return (
+            <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+                <Typography variant="h5" gutterBottom fontWeight="500" sx={{ mb: 3 }}>
+                    Pair Statistics
+                </Typography>
+                
+                <Box display="flex" alignItems="center" color="error.main">
+                    <Warning sx={{ mr: 1 }} />
+                    <Typography>{error}</Typography>
+                </Box>
+            </Paper>
+        );
+    }
+
     return (
         <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
             <Typography variant="h5" gutterBottom fontWeight="500" sx={{ mb: 3 }}>
                 Pair Statistics
             </Typography>
-            
-            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
             
             <Grid container spacing={3}>
                 {Object.entries(stats).map(([pair, pairStats]) => (
@@ -118,14 +135,14 @@ const PairStats: React.FC = () => {
                                     <StatItem 
                                         icon={<TrendingUpIcon />}
                                         label="Win Rate"
-                                        value={`${(pairStats.winRate * 100).toFixed(1)}%`}
-                                        color={theme.palette.success.main}
+                                        value={`${pairStats.winRate.toFixed(2)}%`}
+                                        color={pairStats.winRate >= 50 ? theme.palette.success.main : theme.palette.error.main}
                                     />
                                     
                                     <StatItem 
                                         icon={<ShowChartIcon />}
                                         label="Profit Factor"
-                                        value={pairStats.profitFactor.toFixed(2)}
+                                        value={pairStats.profitFactor === Infinity ? '∞' : pairStats.profitFactor.toFixed(2)}
                                         color={theme.palette.info.main}
                                     />
                                     

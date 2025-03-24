@@ -1,5 +1,5 @@
 // Backend API URL
-export const BACKEND_URL = 'https://forex-ai-trader-backend-0b07293d3688.herokuapp.com';
+export const BACKEND_URL = process.env.REACT_APP_API_URL || 'https://forex-ai-trader-backend-0b07293d3688.herokuapp.com';
 
 // WebSocket configuration
 export const WS_CONFIG = {
@@ -19,6 +19,10 @@ export const WS_CONFIG = {
   rememberUpgrade: false,
   perMessageDeflate: {
     threshold: 1024
+  },
+  withCredentials: true,
+  extraHeaders: {
+    'Access-Control-Allow-Origin': '*'
   }
 };
 
