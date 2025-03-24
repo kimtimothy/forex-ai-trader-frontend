@@ -1,10 +1,11 @@
 import axios from 'axios';
+import { getApiUrl } from '../utils/api';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://forex-ai-trader-backend-0b07293d3688.herokuapp.com';
+const API_BASE_URL = getApiUrl();
 
 // Configure axios defaults
 axios.defaults.withCredentials = true;
-axios.defaults.headers.common['Access-Control-Allow-Origin'] = 'https://forex-ai-trader-frontend-7951b3342477.herokuapp.com';
+axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -41,11 +42,7 @@ const handleApiError = (error: any, endpoint: string) => {
 export const tradingApi = {
     getPositions: async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/positions`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
+            const response = await api.get('/api/positions');
             return response.data;
         } catch (error) {
             console.error('Error fetching positions:', error);
@@ -55,7 +52,7 @@ export const tradingApi = {
     
     getTrades: async () => {
         try {
-            const response = await  axios.get(`${API_BASE_URL}/api/trades`);
+            const response = await api.get('/api/trades');
             console.log('getTrades response:', response.data);
             return response.data;
         } catch (error) {
@@ -66,7 +63,7 @@ export const tradingApi = {
     
     getStats: async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/stats`);
+            const response = await api.get('/api/stats');
             console.log('getStats response:', response.data);
             return response.data;
         } catch (error) {
@@ -77,7 +74,7 @@ export const tradingApi = {
     
     getPerformance: async (pair: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/performance/${pair}`);
+            const response = await api.get(`/api/performance/${pair}`);
             return response.data;
         } catch (error) {
             return handleApiError(error, 'getPerformance');
@@ -86,7 +83,7 @@ export const tradingApi = {
 
     getPairTrades: async (pair: string) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/trades/${pair}`);
+            const response = await api.get(`/api/trades/${pair}`);
             return response.data;
         } catch (error) {
             return handleApiError(error, 'getPairTrades');
@@ -94,7 +91,7 @@ export const tradingApi = {
     },
 
     getChartData: async (pair: string, timeframe: string) => {
-        const response = await axios.get(`${API_BASE_URL}/api/chart-data`, {
+        const response = await api.get('/api/chart-data', {
             params: { pair, timeframe }
         });
         return response.data;
@@ -102,7 +99,7 @@ export const tradingApi = {
 
     getBotStatus: async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/api/bot/status`);
+            const response = await api.get('/api/bot/status');
             return response.data;
         } catch (error) {
             return handleApiError(error, 'getBotStatus');
@@ -112,7 +109,7 @@ export const tradingApi = {
     startBot: async () => {
         try {
             console.log('API: Starting bot...');
-            const response = await axios.post(`${API_BASE_URL}/api/bot/start`);
+            const response = await api.post('/api/bot/start');
             console.log('API: Bot start response:', response.data);
             return response.data;
         } catch (error) {
@@ -123,7 +120,7 @@ export const tradingApi = {
     stopBot: async () => {
         try {
             console.log('API: Stopping bot...');
-            const response = await axios.post(`${API_BASE_URL}/api/bot/stop`);
+            const response = await api.post('/api/bot/stop');
             console.log('API: Bot stop response:', response.data);
             return response.data;
         } catch (error) {
@@ -133,7 +130,7 @@ export const tradingApi = {
 
     modifyTrade: async (tradeId: string, modifications: { takeProfitPrice?: number, stopLossPrice?: number }) => {
         try {
-            const response = await axios.put(`${API_BASE_URL}/api/trades/${tradeId}`, modifications);
+            const response = await api.put(`/api/trades/${tradeId}`, modifications);
             return response.data;
         } catch (error) {
             return handleApiError(error, 'modifyTrade');
@@ -142,7 +139,7 @@ export const tradingApi = {
 
     closeTrade: async (tradeId: string) => {
         try {
-            const response = await axios.delete(`${API_BASE_URL}/api/trades/${tradeId}`);
+            const response = await api.delete(`/api/trades/${tradeId}`);
             return response.data;
         } catch (error) {
             return handleApiError(error, 'closeTrade');
