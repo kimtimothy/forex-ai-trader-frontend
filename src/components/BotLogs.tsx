@@ -62,9 +62,9 @@ const BotLogs: React.FC = () => {
         setConnectionAttempts(prev => prev + 1);
 
         const socket = io(backendUrl, {
-            transports: ['websocket'],  // Use only WebSocket
+            transports: ['polling', 'websocket'],  // Try polling first, then upgrade to WebSocket
             reconnection: true,
-            reconnectionAttempts: 3,  // Match backend
+            reconnectionAttempts: 5,
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,
             timeout: 60000,
@@ -78,10 +78,12 @@ const BotLogs: React.FC = () => {
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache'
             },
-            upgrade: false,  // Don't allow transport upgrade
-            rememberUpgrade: false,  // Don't remember upgrades
+            upgrade: true,  // Allow transport upgrade
+            rememberUpgrade: true,  // Remember successful upgrades
             secure: true,
-            rejectUnauthorized: false
+            rejectUnauthorized: false,
+            autoConnect: true,
+            multiplex: false
         });
 
         socketRef.current = socket;
