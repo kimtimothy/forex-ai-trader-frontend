@@ -63,9 +63,9 @@ const BotLogs: React.FC = () => {
         setConnectionAttempts(prev => prev + 1);
 
         const socket = io(backendUrl, {
-            transports: ['websocket'],  // Use only WebSocket
+            transports: ['polling', 'websocket'],  // Try polling first, then upgrade to WebSocket
             reconnection: true,
-            reconnectionAttempts: 3,
+            reconnectionAttempts: 5,
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,
             timeout: 60000,
@@ -79,8 +79,8 @@ const BotLogs: React.FC = () => {
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache'
             },
-            upgrade: false,  // Don't allow transport upgrade
-            rememberUpgrade: false,  // Don't remember upgrades
+            upgrade: true,  // Allow transport upgrade
+            rememberUpgrade: true,  // Remember successful upgrades
             secure: true,
             rejectUnauthorized: false,
             autoConnect: true,
@@ -91,25 +91,44 @@ const BotLogs: React.FC = () => {
 
         socket.on('connect', () => {
             console.log('Socket connected:', socket.id);
+            console.log('Transport:', socket.io.engine.transport.name);
             setError(null);
             setIsConnected(true);
             setConnectionAttempts(0);
             setLogs(prev => [...prev, { 
-                message: `Connected to bot server (${connectionAttempts > 0 ? 'reconnected' : 'initial'})`, 
+                message: `Connected to bot server (${connectionAttempts > 0 ? 'reconnected' : 'initial'}) via ${socket.io.engine.transport.name}`, 
                 level: 'INFO',
                 timestamp: new Date().toISOString()
             }]);
         });
 
+        socket.on('connection_status', (data) => {
+            console.log('Connection status:', data);
+            if (data.status === 'connected') {
+                setIsConnected(true);
+                setError(null);
+                setConnectionAttempts(0);
+                if (data.transport) {
+                    console.log('Connected via transport:', data.transport);
+                }
+            }
+        });
+
         socket.on('connect_error', (err: any) => {
             console.error('Socket connection error:', err);
+            console.error('Error details:', {
+                message: err.message,
+                description: err.description || 'No description',
+                type: err.type || 'Unknown type',
+                context: err.context || 'No context'
+            });
             setIsConnected(false);
             setError(`Connection error: ${err.message}`);
             
             // Implement exponential backoff for reconnection
             const backoffDelay = Math.min(1000 * Math.pow(2, connectionAttempts), 10000);
             reconnectTimeoutRef.current = setTimeout(() => {
-                if (!socket.connected && connectionAttempts < 3) {
+                if (!socket.connected && connectionAttempts < 5) {
                     console.log(`Retrying connection after ${backoffDelay}ms...`);
                     socket.disconnect();
                     connectSocket();
@@ -119,6 +138,7 @@ const BotLogs: React.FC = () => {
 
         socket.on('disconnect', (reason) => {
             console.log('Socket disconnected:', reason);
+            console.log('Transport:', socket.io.engine.transport.name);
             setIsConnected(false);
             setError(`Disconnected: ${reason}`);
             
@@ -135,6 +155,15 @@ const BotLogs: React.FC = () => {
         socket.on('error', (error) => {
             console.error('Socket error:', error);
             setError(`Socket error: ${typeof error === 'string' ? error : error.message}`);
+        });
+
+        socket.on('transport_error', (error) => {
+            console.error('Transport error:', error);
+            setError(`Transport error: ${typeof error === 'string' ? error : error.message}`);
+        });
+
+        socket.on('upgrade', (transport) => {
+            console.log('Transport upgraded to:', transport.name);
         });
 
         socket.on('bot_log', (data: LogMessage) => {
