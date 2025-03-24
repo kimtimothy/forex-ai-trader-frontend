@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { Box, Paper, Typography, CircularProgress, Alert } from '@mui/material';
-import { BACKEND_URL } from '../config';
+import { BACKEND_URL, WS_CONFIG } from '../config';
 
 interface BotLog {
   message: string;
@@ -27,25 +27,7 @@ const BotLogs: React.FC = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-    const newSocket = io(BACKEND_URL, {
-      transports: ['websocket'],
-      reconnection: true,
-      reconnectionAttempts: 3,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-      timeout: 30000,
-      autoConnect: true,
-      path: '/socket.io',
-      forceNew: true,
-      secure: true,
-      rejectUnauthorized: false,
-      multiplex: false,
-      upgrade: false,
-      rememberUpgrade: false,
-      perMessageDeflate: {
-        threshold: 1024
-      }
-    });
+    const newSocket = io(BACKEND_URL, WS_CONFIG);
 
     newSocket.on('connect', () => {
       console.log('Socket connected');
@@ -113,7 +95,12 @@ const BotLogs: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="200px"
+      >
         <CircularProgress />
       </Box>
     );
@@ -128,8 +115,16 @@ const BotLogs: React.FC = () => {
   }
 
   return (
-    <Paper elevation={3} sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+    <Paper
+      elevation={3}
+      sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}
+    >
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
+      >
         <Typography variant="h6">Bot Logs</Typography>
         <Box display="flex" alignItems="center" gap={1}>
           <Box
@@ -146,7 +141,9 @@ const BotLogs: React.FC = () => {
 
       {botStatus && (
         <Box mb={2}>
-          <Typography variant="subtitle2">Bot Status: {botStatus.status}</Typography>
+          <Typography variant="subtitle2">
+            Bot Status: {botStatus.status}
+          </Typography>
           <Typography variant="body2">Uptime: {botStatus.uptime}</Typography>
           {botStatus.lastError && (
             <Typography variant="body2" color="error">
@@ -164,7 +161,7 @@ const BotLogs: React.FC = () => {
           p: 1,
           borderRadius: 1,
           fontFamily: 'monospace',
-          fontSize: '0.875rem'
+          fontSize: '0.875rem',
         }}
       >
         {logs.map((log, index) => (
@@ -176,7 +173,8 @@ const BotLogs: React.FC = () => {
               borderRadius: 1,
               bgcolor: 'background.paper',
               borderLeft: 4,
-              borderColor: log.level === 'ERROR' ? 'error.main' : 'primary.main'
+              borderColor:
+                log.level === 'ERROR' ? 'error.main' : 'primary.main',
             }}
           >
             <Typography variant="caption" color="text.secondary">
@@ -200,4 +198,4 @@ const BotLogs: React.FC = () => {
   );
 };
 
-export default BotLogs; 
+export default BotLogs;
