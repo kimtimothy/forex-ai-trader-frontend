@@ -12,7 +12,11 @@ const api = axios.create({
     timeout: 10000, // 10 second timeout
     headers: {
         'Content-Type': 'application/json',
-    }
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    },
+    withCredentials: true
 });
 
 // Add response interceptor for better error handling
@@ -22,7 +26,8 @@ api.interceptors.response.use(
         console.error('API Error:', {
             message: error.message,
             endpoint: error.config?.url,
-            status: error.response?.status
+            status: error.response?.status,
+            data: error.response?.data
         });
         
         if (error.response?.status === 503) {
