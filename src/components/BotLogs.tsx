@@ -62,7 +62,7 @@ const BotLogs: React.FC = () => {
         setConnectionAttempts(prev => prev + 1);
 
         const socket = io(backendUrl, {
-            transports: ['websocket', 'polling'],
+            transports: ['polling', 'websocket'],  // Try polling first, then upgrade to WebSocket
             reconnection: true,
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,
@@ -77,18 +77,23 @@ const BotLogs: React.FC = () => {
             extraHeaders: {
                 'Cache-Control': 'no-cache',
                 'Pragma': 'no-cache'
-            }
+            },
+            upgrade: true,  // Allow transport upgrade
+            rememberUpgrade: true,  // Remember successful upgrades
+            secure: true,  // Use secure connection
+            rejectUnauthorized: false  // Allow self-signed certificates
         });
 
         socketRef.current = socket;
 
         socket.on('connect', () => {
             console.log('Socket connected:', socket.id);
+            console.log('Transport:', socket.io.engine.transport.name);
             setError(null);
             setIsConnected(true);
             setConnectionAttempts(0);
             setLogs(prev => [...prev, { 
-                message: `Connected to bot server (${connectionAttempts > 0 ? 'reconnected' : 'initial'})`, 
+                message: `Connected to bot server (${connectionAttempts > 0 ? 'reconnected' : 'initial'}) via ${socket.io.engine.transport.name}`, 
                 level: 'INFO',
                 timestamp: new Date().toISOString()
             }]);
@@ -100,11 +105,20 @@ const BotLogs: React.FC = () => {
                 setIsConnected(true);
                 setError(null);
                 setConnectionAttempts(0);
+                if (data.transport) {
+                    console.log('Connected via transport:', data.transport);
+                }
             }
         });
 
-        socket.on('connect_error', (err) => {
+        socket.on('connect_error', (err: any) => {
             console.error('Socket connection error:', err);
+            console.error('Error details:', {
+                message: err.message,
+                description: err.description || 'No description',
+                type: err.type || 'Unknown type',
+                context: err.context || 'No context'
+            });
             setIsConnected(false);
             setError(`Connection error: ${err.message}`);
             
@@ -121,6 +135,7 @@ const BotLogs: React.FC = () => {
 
         socket.on('disconnect', (reason) => {
             console.log('Socket disconnected:', reason);
+            console.log('Transport:', socket.io.engine.transport.name);
             setIsConnected(false);
             setError(`Disconnected: ${reason}`);
             
@@ -142,6 +157,10 @@ const BotLogs: React.FC = () => {
         socket.on('transport_error', (error) => {
             console.error('Transport error:', error);
             setError(`Transport error: ${typeof error === 'string' ? error : error.message}`);
+        });
+
+        socket.on('upgrade', (transport) => {
+            console.log('Transport upgraded to:', transport.name);
         });
 
         socket.on('bot_log', (data: LogMessage) => {
