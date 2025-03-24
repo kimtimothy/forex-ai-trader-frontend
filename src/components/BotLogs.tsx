@@ -62,7 +62,7 @@ const BotLogs: React.FC = () => {
         setConnectionAttempts(prev => prev + 1);
 
         const socket = io(backendUrl, {
-            transports: ['websocket'],
+            transports: ['websocket', 'polling'],
             reconnection: true,
             reconnectionAttempts: 5,
             reconnectionDelay: 1000,
@@ -73,10 +73,26 @@ const BotLogs: React.FC = () => {
             withCredentials: true,
             auth: {
                 timestamp: Date.now()
+            },
+            extraHeaders: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
             }
         });
 
         socketRef.current = socket;
+
+        socket.on('connect', () => {
+            console.log('Socket connected:', socket.id);
+            setError(null);
+            setIsConnected(true);
+            setConnectionAttempts(0);
+            setLogs(prev => [...prev, { 
+                message: `Connected to bot server (${connectionAttempts > 0 ? 'reconnected' : 'initial'})`, 
+                level: 'INFO',
+                timestamp: new Date().toISOString()
+            }]);
+        });
 
         socket.on('connection_status', (data) => {
             console.log('Connection status:', data);
@@ -84,12 +100,23 @@ const BotLogs: React.FC = () => {
                 setIsConnected(true);
                 setError(null);
                 setConnectionAttempts(0);
-                setLogs(prev => [...prev, { 
-                    message: `Connected to bot server (${connectionAttempts > 0 ? 'reconnected' : 'initial'})`, 
-                    level: 'INFO',
-                    timestamp: new Date().toISOString()
-                }]);
             }
+        });
+
+        socket.on('connect_error', (err) => {
+            console.error('Socket connection error:', err);
+            setIsConnected(false);
+            setError(`Connection error: ${err.message}`);
+            
+            // Implement exponential backoff for reconnection
+            const backoffDelay = Math.min(1000 * Math.pow(2, connectionAttempts), 10000);
+            reconnectTimeoutRef.current = setTimeout(() => {
+                if (!socket.connected && connectionAttempts < 5) {
+                    console.log(`Retrying connection after ${backoffDelay}ms...`);
+                    socket.disconnect();
+                    connectSocket();
+                }
+            }, backoffDelay);
         });
 
         socket.on('disconnect', (reason) => {
@@ -110,6 +137,11 @@ const BotLogs: React.FC = () => {
         socket.on('error', (error) => {
             console.error('Socket error:', error);
             setError(`Socket error: ${typeof error === 'string' ? error : error.message}`);
+        });
+
+        socket.on('transport_error', (error) => {
+            console.error('Transport error:', error);
+            setError(`Transport error: ${typeof error === 'string' ? error : error.message}`);
         });
 
         socket.on('bot_log', (data: LogMessage) => {
