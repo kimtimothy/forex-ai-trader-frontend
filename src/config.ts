@@ -1,0 +1,1 @@
+export const BACKEND_URL = 'https://forex-ai-trader-backend-0b07293d3688.herokuapp.com'; 

@@ -1,326 +1,198 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Paper, Typography, Box, Alert } from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { getWebSocketUrl } from '../utils/api';
+import { Box, Paper, Typography, CircularProgress, Alert } from '@mui/material';
+import { BACKEND_URL } from '../config';
 
-interface LogMessage {
-    message: string;
-    level: string;
-    timestamp?: string;
-    data?: {
-        pair?: string;
-        current_price?: number;
-        indicators?: any;
-        analysis?: {
-            trend?: {
-                direction: string;
-                strength: number;
-                support_levels: number[];
-                resistance_levels: number[];
-            };
-            momentum?: {
-                rsi: number;
-                macd: any;
-                stochastic: any;
-            };
-            volatility?: {
-                atr: number;
-                bollinger_bands: any;
-                volatility_level: string;
-            };
-        };
-        market_conditions?: {
-            spread: number;
-            liquidity: string;
-            volatility_level: string;
-        };
-        risk_metrics?: {
-            position_size: number;
-            stop_loss: number;
-            take_profit: number;
-        };
-    };
+interface BotLog {
+  message: string;
+  level: string;
+  timestamp: string;
+  data?: any;
+}
+
+interface BotStatus {
+  status: string;
+  lastTradeTime: string | null;
+  lastError: string | null;
+  isRunning: boolean;
+  uptime: string;
 }
 
 const BotLogs: React.FC = () => {
-    const [logs, setLogs] = useState<LogMessage[]>([]);
-    const [error, setError] = useState<string | null>(null);
-    const [connectionAttempts, setConnectionAttempts] = useState(0);
-    const [isConnected, setIsConnected] = useState(false);
-    const [isBotRunning, setIsBotRunning] = useState(false);
-    const logsEndRef = useRef<null | HTMLDivElement>(null);
-    const socketRef = useRef<Socket | null>(null);
-    const reconnectTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
-    
-    const connectSocket = useCallback(() => {
-        if (socketRef.current?.connected) {
-            console.log('Socket already connected, skipping connection attempt');
-            return socketRef.current;
-        }
+  const [logs, setLogs] = useState<BotLog[]>([]);
+  const [isConnected, setIsConnected] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [botStatus, setBotStatus] = useState<BotStatus | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
-        const backendUrl = 'https://forex-ai-trader-backend-0b07293d3688.herokuapp.com';
-        console.log(`Attempting to connect to socket at ${backendUrl}...`);
-        setConnectionAttempts(prev => prev + 1);
+  useEffect(() => {
+    const newSocket = io(BACKEND_URL, {
+      transports: ['websocket'],
+      reconnection: true,
+      reconnectionAttempts: 3,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      timeout: 30000,
+      autoConnect: true,
+      path: '/socket.io',
+      forceNew: true,
+      secure: true,
+      rejectUnauthorized: false,
+      multiplex: false
+    });
 
-        const socket = io(backendUrl, {
-            transports: ['websocket'],
-            reconnection: true,
-            reconnectionAttempts: 3,
-            reconnectionDelay: 1000,
-            reconnectionDelayMax: 5000,
-            timeout: 30000,
-            forceNew: true,
-            path: '/socket.io',
-            withCredentials: true,
-            auth: {
-                timestamp: Date.now()
-            },
-            extraHeaders: {
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache'
-            },
-            upgrade: false,
-            rememberUpgrade: false,
-            secure: true,
-            rejectUnauthorized: false,
-            autoConnect: true,
-            multiplex: false
+    newSocket.on('connect', () => {
+      console.log('Socket connected');
+      setIsConnected(true);
+      setError(null);
+      setIsLoading(false);
+      // Request initial bot status
+      newSocket.emit('get_bot_status');
+    });
+
+    newSocket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+      setError('Failed to connect to server');
+      setIsConnected(false);
+      setIsLoading(false);
+    });
+
+    newSocket.on('disconnect', (reason) => {
+      console.log('Socket disconnected:', reason);
+      setIsConnected(false);
+      setIsLoading(false);
+    });
+
+    newSocket.on('error', (error) => {
+      console.error('Socket error:', error);
+      setError('Socket error occurred');
+      setIsLoading(false);
+    });
+
+    newSocket.on('bot_log', (data: BotLog) => {
+      console.log('Received bot log:', data);
+      setLogs(prevLogs => [...prevLogs, data]);
+    });
+
+    newSocket.on('bot_status', (status: BotStatus) => {
+      console.log('Received bot status:', status);
+      setBotStatus(status);
+    });
+
+    newSocket.on('bot_status_change', (data: { status: string }) => {
+      console.log('Bot status changed:', data);
+      if (botStatus) {
+        setBotStatus({
+          ...botStatus,
+          status: data.status,
+          isRunning: data.status === 'running'
         });
+      }
+    });
 
-        socketRef.current = socket;
+    setSocket(newSocket);
 
-        socket.on('connect', () => {
-            console.log('Socket connected:', socket.id);
-            setError(null);
-            setIsConnected(true);
-            setConnectionAttempts(0);
-            setLogs(prev => [...prev, { 
-                message: `Connected to bot server (${connectionAttempts > 0 ? 'reconnected' : 'initial'})`, 
-                level: 'INFO',
-                timestamp: new Date().toISOString()
-            }]);
-            
-            // Request initial bot status
-            socket.emit('get_bot_status');
-        });
+    // Set up ping interval
+    const pingInterval = setInterval(() => {
+      if (newSocket.connected) {
+        newSocket.emit('ping');
+      }
+    }, 15000);
 
-        socket.on('connect_error', (err: any) => {
-            console.error('Socket connection error:', err);
-            setIsConnected(false);
-            setError(`Connection error: ${err.message}`);
-            
-            // Implement exponential backoff for reconnection
-            const backoffDelay = Math.min(1000 * Math.pow(2, connectionAttempts), 5000);
-            reconnectTimeoutRef.current = setTimeout(() => {
-                if (!socket.connected && connectionAttempts < 3) {
-                    console.log(`Retrying connection after ${backoffDelay}ms...`);
-                    socket.disconnect();
-                    connectSocket();
-                }
-            }, backoffDelay);
-        });
-
-        socket.on('disconnect', (reason) => {
-            console.log('Socket disconnected:', reason);
-            setIsConnected(false);
-            setError(`Disconnected: ${reason}`);
-            
-            if (reason === 'io server disconnect') {
-                // Server initiated disconnect, try to reconnect immediately
-                socket.connect();
-            } else if (reason === 'transport close' || reason === 'transport error') {
-                // Transport issues, attempt reconnect with backoff
-                const backoffDelay = Math.min(1000 * Math.pow(2, connectionAttempts), 5000);
-                reconnectTimeoutRef.current = setTimeout(connectSocket, backoffDelay);
-            }
-        });
-
-        socket.on('error', (error) => {
-            console.error('Socket error:', error);
-            setError(`Socket error: ${typeof error === 'string' ? error : error.message}`);
-        });
-
-        socket.on('transport_error', (error) => {
-            console.error('Transport error:', error);
-            setError(`Transport error: ${typeof error === 'string' ? error : error.message}`);
-        });
-
-        socket.on('bot_log', (data: LogMessage) => {
-            console.log('Received bot log:', data);
-            if (!data.timestamp) {
-                data.timestamp = new Date().toISOString();
-            }
-            setLogs(prevLogs => {
-                const newLogs = [...prevLogs, data];
-                console.log('Updated logs:', newLogs);
-                return newLogs;
-            });
-        });
-
-        socket.on('bot_status_change', (data) => {
-            console.log('Bot status changed:', data);
-            setIsBotRunning(data.status === 'running');
-            if (data.status !== 'running') {
-                // Clear logs when bot stops
-                setLogs([]);
-            }
-        });
-
-        // Add handler for bot status response
-        socket.on('bot_status', (data) => {
-            console.log('Received bot status:', data);
-            setIsBotRunning(data.status === 'running');
-            if (data.status === 'running') {
-                // Request logs when bot is running
-                socket.emit('get_bot_logs');
-            }
-        });
-
-        // Add handler for bot logs response
-        socket.on('bot_logs', (logs: LogMessage[]) => {
-            console.log('Received bot logs:', logs);
-            setLogs(logs);
-        });
-
-        // Ping to keep connection alive
-        const pingInterval = setInterval(() => {
-            if (socket.connected) {
-                socket.emit('ping');
-            }
-        }, 15000);
-
-        return socket;
-    }, [connectionAttempts]);
-    
-    useEffect(() => {
-        const socket = connectSocket();
-        
-        return () => {
-            if (socketRef.current) {
-                socketRef.current.disconnect();
-                socketRef.current = null;
-            }
-            if (reconnectTimeoutRef.current) {
-                clearTimeout(reconnectTimeoutRef.current);
-            }
-        };
-    }, [connectSocket]);
-    
-    const scrollToBottom = useCallback(() => {
-        if (logsEndRef.current) {
-            logsEndRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    }, []);
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [logs, scrollToBottom]);
-    
-    const formatAnalysisData = (data: LogMessage['data']) => {
-        if (!data) return '';
-
-        let formattedMessage = '';
-        
-        // Format technical analysis
-        if (data.analysis) {
-            formattedMessage += '\nTechnical Analysis:\n';
-            if (data.analysis.trend) {
-                formattedMessage += `  Trend: ${data.analysis.trend.direction} (Strength: ${data.analysis.trend.strength})\n`;
-                formattedMessage += `  Support Levels: ${data.analysis.trend.support_levels.join(', ')}\n`;
-                formattedMessage += `  Resistance Levels: ${data.analysis.trend.resistance_levels.join(', ')}\n`;
-            }
-            if (data.analysis.momentum) {
-                formattedMessage += `  RSI: ${data.analysis.momentum.rsi}\n`;
-            }
-            if (data.analysis.volatility) {
-                formattedMessage += `  ATR: ${data.analysis.volatility.atr}\n`;
-                formattedMessage += `  Volatility Level: ${data.analysis.volatility.volatility_level}\n`;
-            }
-        }
-
-        // Format market conditions
-        if (data.market_conditions) {
-            formattedMessage += '\nMarket Conditions:\n';
-            formattedMessage += `  Spread: ${data.market_conditions.spread}\n`;
-            formattedMessage += `  Liquidity: ${data.market_conditions.liquidity}\n`;
-            formattedMessage += `  Volatility: ${data.market_conditions.volatility_level}\n`;
-        }
-
-        // Format risk metrics
-        if (data.risk_metrics) {
-            formattedMessage += '\nRisk Assessment:\n';
-            formattedMessage += `  Position Size: ${data.risk_metrics.position_size.toFixed(2)}\n`;
-            formattedMessage += `  Stop Loss: ${data.risk_metrics.stop_loss.toFixed(5)}\n`;
-            formattedMessage += `  Take Profit: ${data.risk_metrics.take_profit.toFixed(5)}\n`;
-        }
-
-        return formattedMessage;
+    return () => {
+      clearInterval(pingInterval);
+      newSocket.close();
     };
+  }, []);
 
+  if (isLoading) {
     return (
-        <Paper 
-            elevation={3} 
-            sx={{ 
-                p: 2, 
-                mt: 2, 
-                height: '400px', 
-                overflowY: 'auto',
-                backgroundColor: '#1e1e1e'
-            }}
-        >
-            <Typography variant="h6" gutterBottom color="white" sx={{ display: 'flex', alignItems: 'center' }}>
-                Bot Analysis Logs
-                <Box
-                    sx={{
-                        ml: 2,
-                        width: 10,
-                        height: 10,
-                        borderRadius: '50%',
-                        backgroundColor: isConnected ? '#4caf50' : '#f44336'
-                    }}
-                />
-            </Typography>
-            {error && (
-                <Alert severity="error" sx={{ mb: 2 }}>
-                    {error}
-                </Alert>
-            )}
-            {!isBotRunning && (
-                <Alert severity="info" sx={{ mb: 2 }}>
-                    Bot is not running. Analysis logs will appear here when the bot is started.
-                </Alert>
-            )}
-            <Box sx={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
-                {logs.map((log, index) => (
-                    <Box 
-                        key={index} 
-                        sx={{ 
-                            color: log.level === 'ERROR' ? '#ff6b6b' : 
-                                  log.level === 'WARNING' ? '#ffd93d' : '#98c379',
-                            mb: 1,
-                            borderBottom: '1px solid #333',
-                            pb: 1
-                        }}
-                    >
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                            {log.timestamp && (
-                                <span style={{ color: '#666', marginRight: '8px' }}>
-                                    {new Date(log.timestamp).toLocaleTimeString()}
-                                </span>
-                            )}
-                            <span style={{ fontWeight: 'bold' }}>{log.message}</span>
-                        </Box>
-                        {log.data && (
-                            <Box sx={{ ml: 2, color: '#98c379' }}>
-                                {formatAnalysisData(log.data)}
-                            </Box>
-                        )}
-                    </Box>
-                ))}
-                <div ref={logsEndRef} />
-            </Box>
-        </Paper>
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <CircularProgress />
+      </Box>
     );
+  }
+
+  if (error) {
+    return (
+      <Box p={2}>
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
+  }
+
+  return (
+    <Paper elevation={3} sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h6">Bot Logs</Typography>
+        <Box display="flex" alignItems="center" gap={1}>
+          <Box
+            width={10}
+            height={10}
+            borderRadius="50%"
+            bgcolor={isConnected ? 'success.main' : 'error.main'}
+          />
+          <Typography variant="body2" color="text.secondary">
+            {isConnected ? 'Connected' : 'Disconnected'}
+          </Typography>
+        </Box>
+      </Box>
+
+      {botStatus && (
+        <Box mb={2}>
+          <Typography variant="subtitle2">Bot Status: {botStatus.status}</Typography>
+          <Typography variant="body2">Uptime: {botStatus.uptime}</Typography>
+          {botStatus.lastError && (
+            <Typography variant="body2" color="error">
+              Last Error: {botStatus.lastError}
+            </Typography>
+          )}
+        </Box>
+      )}
+
+      <Box
+        sx={{
+          flex: 1,
+          overflow: 'auto',
+          bgcolor: 'grey.100',
+          p: 1,
+          borderRadius: 1,
+          fontFamily: 'monospace',
+          fontSize: '0.875rem'
+        }}
+      >
+        {logs.map((log, index) => (
+          <Box
+            key={index}
+            sx={{
+              mb: 1,
+              p: 1,
+              borderRadius: 1,
+              bgcolor: 'background.paper',
+              borderLeft: 4,
+              borderColor: log.level === 'ERROR' ? 'error.main' : 'primary.main'
+            }}
+          >
+            <Typography variant="caption" color="text.secondary">
+              {new Date(log.timestamp).toLocaleString()}
+            </Typography>
+            <Typography
+              variant="body2"
+              color={log.level === 'ERROR' ? 'error.main' : 'text.primary'}
+            >
+              {log.message}
+            </Typography>
+            {log.data && (
+              <Typography variant="body2" color="text.secondary">
+                {JSON.stringify(log.data, null, 2)}
+              </Typography>
+            )}
+          </Box>
+        ))}
+      </Box>
+    </Paper>
+  );
 };
 
 export default BotLogs; 
