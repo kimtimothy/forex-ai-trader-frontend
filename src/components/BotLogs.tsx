@@ -39,7 +39,12 @@ const BotLogs: React.FC = () => {
       forceNew: true,
       secure: true,
       rejectUnauthorized: false,
-      multiplex: false
+      multiplex: false,
+      upgrade: false,
+      rememberUpgrade: false,
+      perMessageDeflate: {
+        threshold: 1024
+      }
     });
 
     newSocket.on('connect', () => {
