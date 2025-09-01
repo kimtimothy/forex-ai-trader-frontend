@@ -14,17 +14,20 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import StopIcon from '@mui/icons-material/Stop';
 import { tradingApi } from '../services/api';
 import BotLogs from './BotLogs';
+import { BotStatus } from '../types/types';
 
 const BotControl: React.FC = () => {
     const [isRunning, setIsRunning] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [initializationStatus, setInitializationStatus] = useState<string | null>(null);
     const theme = useTheme();
 
     const fetchBotStatus = async () => {
         try {
-            const status = await tradingApi.getBotStatus();
+            const status: BotStatus = await tradingApi.getBotStatus();
             setIsRunning(status.running);
+            setInitializationStatus(status.initializationStatus || null);
             setError(null);
         } catch (err) {
             console.error('Error fetching bot status:', err);
@@ -83,6 +86,14 @@ const BotControl: React.FC = () => {
                 </Box>
 
                 {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+                
+                {initializationStatus && (
+                    <Alert severity="info" sx={{ mb: 2 }}>
+                        <Typography variant="body2">
+                            <strong>Initialization:</strong> {initializationStatus}
+                        </Typography>
+                    </Alert>
+                )}
 
                 <Stack direction="row" spacing={2} justifyContent="center">
                     <Button

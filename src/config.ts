@@ -1,9 +1,9 @@
-// Backend API URL
-export const BACKEND_URL = process.env.REACT_APP_API_URL || 'https://forex-ai-trader-backend-0b07293d3688.herokuapp.com';
+// Backend API URL - Use local development URL
+export const BACKEND_URL = process.env.REACT_APP_API_URL || 'http://localhost:5003';
 
 // WebSocket configuration
 export const WS_CONFIG = {
-  transports: ['websocket'],
+  transports: ['websocket', 'polling'], // Allow both transports for better compatibility
   reconnection: true,
   reconnectionAttempts: 3,
   reconnectionDelay: 1000,
@@ -12,18 +12,16 @@ export const WS_CONFIG = {
   autoConnect: true,
   path: '/socket.io',
   forceNew: true,
-  secure: true,
+  secure: false, // Set to false for local development
   rejectUnauthorized: false,
   multiplex: false,
-  upgrade: false,
+  upgrade: true, // Allow transport upgrades
   rememberUpgrade: false,
   perMessageDeflate: {
     threshold: 1024
   },
   withCredentials: true,
-  extraHeaders: {
-    'Access-Control-Allow-Origin': '*'
-  }
+
 };
 
 // API endpoints

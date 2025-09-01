@@ -60,11 +60,7 @@ const PairStats: React.FC = () => {
     const fetchStats = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/stats`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch stats');
-            }
-            const data = await response.json();
+            const data = await tradingApi.getStats();
             setStats(data);
             setError(null);
         } catch (err) {

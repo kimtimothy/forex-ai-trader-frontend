@@ -25,4 +25,13 @@ export interface PairStats {
     totalTrades: number;
     profitFactor: number;
     averageProfit: number;
+}
+
+export interface BotStatus {
+    running: boolean;
+    status: string;
+    lastTradeTime?: string;
+    lastError?: string;
+    uptime: string;
+    initializationStatus?: string;
 } 

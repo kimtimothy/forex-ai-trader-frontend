@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { Box, Paper, Typography, CircularProgress, Alert, Button } from '@mui/material';
-import { BACKEND_URL, WS_CONFIG } from '../config';
+import { getApiUrl, getWebSocketUrl } from '../utils/api';
+import { WS_CONFIG } from '../config';
 
 interface BotLog {
   timestamp: string;
@@ -50,8 +51,8 @@ const BotLogs: React.FC = () => {
         return undefined;
       }
 
-      console.log(`Initializing socket connection to: ${BACKEND_URL} (Attempt ${connectionAttempts + 1}/${MAX_CONNECTION_ATTEMPTS})`);
-      const newSocket = io(BACKEND_URL, {
+      console.log(`Initializing socket connection to: ${getWebSocketUrl()} (Attempt ${connectionAttempts + 1}/${MAX_CONNECTION_ATTEMPTS})`);
+      const newSocket = io(getWebSocketUrl(), {
         ...WS_CONFIG,
         reconnection: false, // Disable auto-reconnection to handle it manually
         autoConnect: true,
@@ -406,3 +407,4 @@ const BotLogs: React.FC = () => {
 };
 
 export default BotLogs;
+ 

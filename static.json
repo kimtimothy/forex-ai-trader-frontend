@@ -2,15 +2,5 @@
   "root": "build/",
   "routes": {
     "/**": "index.html"
-  },
-  "proxies": {
-    "/api/": {
-      "origin": "${REACT_APP_API_URL || 'https://forex-ai-trader-backend-0b07293d3688.herokuapp.com'}/api",
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization"
-      }
-    }
   }
 } 

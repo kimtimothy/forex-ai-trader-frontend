@@ -1,20 +1,17 @@
 import axios from 'axios';
 import { getApiUrl } from '../utils/api';
+import { BotStatus } from '../types/types';
 
 const API_BASE_URL = getApiUrl();
 
 // Configure axios defaults
 axios.defaults.withCredentials = true;
-axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
-    timeout: 10000, // 10 second timeout
+    timeout: 30000, // 30 second timeout for bot operations
     headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        'Content-Type': 'application/json'
     },
     withCredentials: true
 });
@@ -102,7 +99,7 @@ export const tradingApi = {
         return response.data;
     },
 
-    getBotStatus: async () => {
+    getBotStatus: async (): Promise<BotStatus> => {
         try {
             const response = await api.get('/api/bot/status');
             return response.data;
@@ -114,7 +111,7 @@ export const tradingApi = {
     startBot: async () => {
         try {
             console.log('API: Starting bot...');
-            const response = await api.post('/api/bot/start');
+            const response = await api.post('/api/bot/start', {}, { timeout: 60000 }); // 60 second timeout for bot start
             console.log('API: Bot start response:', response.data);
             return response.data;
         } catch (error) {
