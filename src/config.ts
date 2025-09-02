@@ -1,5 +1,5 @@
 // Backend API URL - Use local development URL
-export const BACKEND_URL = process.env.REACT_APP_API_URL || 'http://localhost:5003';
+export const BACKEND_URL = process.env.REACT_APP_API_URL || 'http://localhost:5002';
 
 // WebSocket configuration
 export const WS_CONFIG = {

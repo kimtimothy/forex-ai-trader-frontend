@@ -8,8 +8,8 @@ export const getApiUrl = (): string => {
     
     // In development, use localhost backend (separate server)
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        console.log('getApiUrl returning development URL: http://localhost:5003');
-        return 'http://localhost:5003';
+        console.log('getApiUrl returning development URL: http://localhost:5002');
+        return 'http://localhost:5002';
     }
     
     // In production, use environment variable or fallback
