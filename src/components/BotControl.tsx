@@ -1,17 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import {
-    Paper,
-    Typography,
-    Box,
-    Button,
-    CircularProgress,
-    Alert,
-    Chip,
-    Stack,
-    useTheme
-} from '@mui/material';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import StopIcon from '@mui/icons-material/Stop';
 import { tradingApi } from '../services/api';
 import BotLogs from './BotLogs';
 import { BotStatus } from '../types/types';
@@ -21,7 +8,6 @@ const BotControl: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [initializationStatus, setInitializationStatus] = useState<string | null>(null);
-    const theme = useTheme();
 
     const fetchBotStatus = async () => {
         try {
@@ -43,6 +29,8 @@ const BotControl: React.FC = () => {
             await tradingApi.startBot();
             setIsRunning(true);
             setError(null);
+            // Refresh status to get the new bot_enabled_since timestamp
+            await fetchBotStatus();
         } catch (err) {
             console.error('Error starting bot:', err);
             setError('Failed to start trading bot');
@@ -57,6 +45,8 @@ const BotControl: React.FC = () => {
             await tradingApi.stopBot();
             setIsRunning(false);
             setError(null);
+            // Refresh status to ensure uptime is reset
+            await fetchBotStatus();
         } catch (err) {
             console.error('Error stopping bot:', err);
             setError('Failed to stop trading bot');
@@ -67,61 +57,117 @@ const BotControl: React.FC = () => {
 
     useEffect(() => {
         fetchBotStatus();
-        const interval = setInterval(fetchBotStatus, 10000);
+        const interval = setInterval(fetchBotStatus, 30000); // Reduced from 10s to 30s
         return () => clearInterval(interval);
     }, []);
 
     return (
         <>
-            <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                    <Typography variant="h5" fontWeight="500">
-                        Trading Bot Control
-                    </Typography>
-                    <Chip
-                        label={isRunning ? 'Running' : 'Stopped'}
-                        color={isRunning ? 'success' : 'error'}
-                        variant="outlined"
-                    />
-                </Box>
+            <div className="modern-card">
+                <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    marginBottom: '24px' 
+                }}>
+                    <h2 style={{ 
+                        margin: 0, 
+                        fontSize: '24px', 
+                        fontWeight: '600',
+                        color: '#ffffff',
+                        background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                    }}>
+                        🤖 Trading Bot Control
+                    </h2>
+                    <span className={`modern-badge ${isRunning ? 'badge-success' : 'badge-danger'}`}>
+                        {isRunning ? '🟢 Running' : '🔴 Stopped'}
+                    </span>
+                </div>
 
-                {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+                {error && (
+                    <div style={{
+                        padding: '12px 16px',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        borderRadius: '8px',
+                        marginBottom: '16px',
+                        color: '#fca5a5',
+                        fontSize: '14px'
+                    }}>
+                        ⚠️ {error}
+                    </div>
+                )}
                 
                 {initializationStatus && (
-                    <Alert severity="info" sx={{ mb: 2 }}>
-                        <Typography variant="body2">
-                            <strong>Initialization:</strong> {initializationStatus}
-                        </Typography>
-                    </Alert>
+                    <div style={{
+                        padding: '12px 16px',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        border: '1px solid rgba(59, 130, 246, 0.3)',
+                        borderRadius: '8px',
+                        marginBottom: '16px',
+                        color: '#93c5fd',
+                        fontSize: '14px'
+                    }}>
+                        ℹ️ <strong>Initialization:</strong> {initializationStatus}
+                    </div>
                 )}
 
-                <Stack direction="row" spacing={2} justifyContent="center">
-                    <Button
-                        variant="contained"
-                        color="success"
-                        startIcon={<PlayArrowIcon />}
+                <div style={{ 
+                    display: 'flex', 
+                    gap: '16px', 
+                    justifyContent: 'center',
+                    flexWrap: 'wrap'
+                }}>
+                    <button
+                        className="modern-button"
                         onClick={handleStartBot}
                         disabled={isRunning || loading}
+                        style={{
+                            backgroundColor: isRunning || loading ? 'rgba(255, 255, 255, 0.1)' : undefined,
+                            cursor: isRunning || loading ? 'not-allowed' : 'pointer',
+                            opacity: isRunning || loading ? 0.6 : 1
+                        }}
+                        aria-label="Start the trading bot"
+                        title="Start the trading bot"
                     >
-                        Start Bot
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="error"
-                        startIcon={<StopIcon />}
+                        ▶️ Start Bot
+                    </button>
+                    <button
+                        className="modern-button"
                         onClick={handleStopBot}
                         disabled={!isRunning || loading}
+                        style={{
+                            backgroundColor: !isRunning || loading ? 'rgba(255, 255, 255, 0.1)' : undefined,
+                            cursor: !isRunning || loading ? 'not-allowed' : 'pointer',
+                            opacity: !isRunning || loading ? 0.6 : 1
+                        }}
+                        aria-label="Stop the trading bot"
+                        title="Stop the trading bot"
                     >
-                        Stop Bot
-                    </Button>
-                </Stack>
+                        ⏹️ Stop Bot
+                    </button>
+                </div>
 
                 {loading && (
-                    <Box display="flex" justifyContent="center" mt={2}>
-                        <CircularProgress size={24} />
-                    </Box>
+                    <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        marginTop: '16px' 
+                    }}>
+                        <div style={{
+                            width: '24px',
+                            height: '24px',
+                            border: '2px solid rgba(99, 102, 241, 0.3)',
+                            borderTop: '2px solid #6366f1',
+                            borderRadius: '50%',
+                            animation: 'spin 1s linear infinite'
+                        }} />
+                    </div>
                 )}
-            </Paper>
+            </div>
             <BotLogs />
         </>
     );

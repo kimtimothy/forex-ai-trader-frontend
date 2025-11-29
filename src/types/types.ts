@@ -33,5 +33,6 @@ export interface BotStatus {
     lastTradeTime?: string;
     lastError?: string;
     uptime: string;
+    bot_enabled_since?: string;
     initializationStatus?: string;
 } 

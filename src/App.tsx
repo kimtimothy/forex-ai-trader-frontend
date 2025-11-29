@@ -1,25 +1,58 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import './App.css';
 import Dashboard from './components/Dashboard';
-import TradingDashboard from './components/TradingDashboard';
-import { CssBaseline, Container, ThemeProvider, createTheme } from '@mui/material';
-
-// Create a theme with better visibility
-const theme = createTheme({
-  palette: {
-    mode: 'dark',
-  },
-});
+import MLInsightsDashboard from './components/MLInsightsDashboard';
+import PerformanceDashboard from './components/PerformanceDashboard';
+import { Routes, Route } from 'react-router-dom';
+import NavBar from './components/NavBar';
+import './utils/errorHandler'; // Initialize global error handling
 
 function App() {
+  useEffect(() => {
+    // Log app initialization
+    console.log('🚀 Forex AI Trading Bot initialized');
+    
+    // Check if manifest is loading correctly
+    fetch('/manifest.json')
+      .then(response => {
+        if (response.ok) {
+          console.log('✅ Manifest.json loaded successfully');
+        } else {
+          console.warn('⚠️ Manifest.json not found - will be fixed on next deployment');
+        }
+      })
+      .catch(error => {
+        console.warn('⚠️ Manifest.json loading error (will be fixed on next deployment):', error);
+      });
+  }, []);
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container maxWidth="lg" sx={{ paddingTop: 4 }}>
-        <h1>Trading Dashboard</h1>
-        <Dashboard />
-        <TradingDashboard />
-      </Container>
-    </ThemeProvider>
+    <div className="App">
+      <NavBar />
+      <main>
+        <Routes>
+          <Route
+            path="/"
+            element={(
+              <>
+                <Dashboard />
+                <div style={{ marginTop: '40px' }}>
+                  <MLInsightsDashboard />
+                </div>
+              </>
+            )}
+          />
+          <Route
+            path="/dashboard"
+            element={(
+              <div style={{ marginBottom: 40 }}>
+                <PerformanceDashboard />
+              </div>
+            )}
+          />
+        </Routes>
+      </main>
+    </div>
   );
 }
 

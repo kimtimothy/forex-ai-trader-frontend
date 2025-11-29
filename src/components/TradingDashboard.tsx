@@ -152,7 +152,7 @@ const TradingDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 30000);
+    const interval = setInterval(fetchData, 60000); // Reduced from 30s to 60s
     return () => clearInterval(interval);
   }, []);
 
@@ -245,7 +245,9 @@ const TradingDashboard: React.FC = () => {
                 Win Rate
               </Typography>
               <Typography variant="h4">
-                {(performance.win_rate * 100).toFixed(2)}%
+                {performance.win_rate !== null && performance.win_rate !== undefined 
+                  ? (performance.win_rate * 100).toFixed(2) + '%'
+                  : 'N/A'}
               </Typography>
             </Paper>
           </Grid>
@@ -255,7 +257,9 @@ const TradingDashboard: React.FC = () => {
                 Total Profit
               </Typography>
               <Typography variant="h4">
-                ${performance.total_profit.toFixed(2)}
+                {performance.total_profit !== null && performance.total_profit !== undefined 
+                  ? '$' + performance.total_profit.toFixed(2)
+                  : 'N/A'}
               </Typography>
             </Paper>
           </Grid>
@@ -265,7 +269,9 @@ const TradingDashboard: React.FC = () => {
                 Profit Factor
               </Typography>
               <Typography variant="h4">
-                {performance.profit_factor.toFixed(2)}
+                {performance.profit_factor !== null && performance.profit_factor !== undefined 
+                  ? performance.profit_factor.toFixed(2)
+                  : 'N/A'}
               </Typography>
             </Paper>
           </Grid>
