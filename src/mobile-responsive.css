@@ -57,37 +57,23 @@ main {
    TABLES
    ============================================ */
 
-/* Make all tables scrollable */
-table {
-  display: block;
+/* Keep tables at desktop size, make wrapper scrollable */
+.modern-table {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  white-space: nowrap;
 }
 
-table thead,
-table tbody,
-table tr {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
+/* Don't shrink table cells - keep desktop sizing */
+table {
+  /* Let tables maintain their natural/minWidth size */
+  border-collapse: collapse;
 }
 
-/* Responsive table cells */
+/* Keep table text at desktop size, don't wrap */
 table th,
 table td {
-  padding: clamp(6px, 1.5vw, 10px) !important;
-  font-size: clamp(0.75rem, 2vw, 0.9rem) !important;
-  min-width: 80px;
-}
-
-/* Table wrapper */
-.table-responsive,
-div[style*="overflowX"] {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  white-space: nowrap;
 }
 
 /* ============================================
