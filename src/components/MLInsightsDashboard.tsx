@@ -134,6 +134,7 @@ const MLInsightsDashboard: React.FC = () => {
     'GBP_NZD',
     'NZD_CAD',
     'CAD_JPY',
+    'XAU_USD',  // Gold - notification only
   ];
 
   const fetchMLData = useCallback(async () => {

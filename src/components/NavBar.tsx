@@ -76,6 +76,17 @@ const NavBar: React.FC = () => {
           >
             Performance
           </NavLink>
+          <NavLink
+            to="/analytics"
+            style={({ isActive }) => ({
+              ...linkBaseStyle,
+              color: isActive ? '#10b981' : '#e5e7eb',
+              background: isActive ? 'rgba(16,185,129,0.12)' : 'transparent',
+              border: isActive ? '1px solid rgba(16,185,129,0.35)' : '1px solid transparent',
+            })}
+          >
+            📊 Analytics
+          </NavLink>
         </div>
       </div>
     </nav>

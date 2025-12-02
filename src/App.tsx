@@ -3,6 +3,7 @@ import './App.css';
 import Dashboard from './components/Dashboard';
 import MLInsightsDashboard from './components/MLInsightsDashboard';
 import PerformanceDashboard from './components/PerformanceDashboard';
+import AnalyticsDashboard from './components/AnalyticsDashboard';
 import { Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import './utils/errorHandler'; // Initialize global error handling
@@ -47,6 +48,14 @@ function App() {
             element={(
               <div style={{ marginBottom: 40 }}>
                 <PerformanceDashboard />
+              </div>
+            )}
+          />
+          <Route
+            path="/analytics"
+            element={(
+              <div style={{ marginBottom: 40 }}>
+                <AnalyticsDashboard />
               </div>
             )}
           />
