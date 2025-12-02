@@ -1,0 +1,482 @@
+/* ============================================
+   MOBILE RESPONSIVE STYLES
+   For all Trading Bot Components
+   ============================================ */
+
+/* Base responsive container */
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+#root {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.App {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+main {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  padding: clamp(10px, 3vw, 20px);
+  box-sizing: border-box;
+}
+
+/* ============================================
+   CARDS & CONTAINERS
+   ============================================ */
+
+/* All card-like components */
+[class*="card"],
+[class*="Card"],
+[style*="boxShadow"],
+[style*="box-shadow"] {
+  width: 100% !important;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+
+/* Make all tables scrollable */
+table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  white-space: nowrap;
+}
+
+table thead,
+table tbody,
+table tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* Responsive table cells */
+table th,
+table td {
+  padding: clamp(6px, 1.5vw, 10px) !important;
+  font-size: clamp(0.75rem, 2vw, 0.9rem) !important;
+  min-width: 80px;
+}
+
+/* Table wrapper */
+.table-responsive,
+div[style*="overflowX"] {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================
+   CHARTS
+   ============================================ */
+
+/* Chart containers */
+canvas {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Chart.js specific */
+.chartjs-render-monitor {
+  max-width: 100% !important;
+}
+
+/* Chart wrapper divs */
+div[style*="position: relative"] canvas {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+
+h1 {
+  font-size: clamp(1.5rem, 5vw, 2.5rem) !important;
+}
+
+h2 {
+  font-size: clamp(1.3rem, 4vw, 2rem) !important;
+}
+
+h3 {
+  font-size: clamp(1.1rem, 3.5vw, 1.5rem) !important;
+}
+
+h4 {
+  font-size: clamp(1rem, 3vw, 1.25rem) !important;
+}
+
+h5, h6 {
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem) !important;
+}
+
+p, span, div {
+  font-size: clamp(0.85rem, 2.5vw, 1rem);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+button {
+  padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px) !important;
+  font-size: clamp(0.85rem, 2.5vw, 1rem) !important;
+  min-height: 44px; /* Touch target */
+  white-space: nowrap;
+}
+
+/* Button groups */
+div[style*="display: flex"] button {
+  flex-shrink: 0;
+}
+
+/* ============================================
+   FORMS & INPUTS
+   ============================================ */
+
+input,
+select,
+textarea {
+  font-size: clamp(0.9rem, 2.5vw, 1rem) !important;
+  padding: clamp(8px, 2vw, 12px) !important;
+  min-height: 44px; /* Touch target */
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+input[type="number"],
+input[type="text"],
+input[type="email"] {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ============================================
+   FLEXBOX LAYOUTS
+   ============================================ */
+
+/* Flex containers should wrap on mobile */
+div[style*="display: flex"] {
+  flex-wrap: wrap;
+  gap: clamp(8px, 2vw, 16px);
+}
+
+/* Grid layouts */
+div[style*="display: grid"] {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)) !important;
+  gap: clamp(10px, 2vw, 20px) !important;
+}
+
+/* ============================================
+   SPACING
+   ============================================ */
+
+/* Responsive padding */
+[style*="padding: 20px"],
+[style*="padding:20px"] {
+  padding: clamp(12px, 3vw, 20px) !important;
+}
+
+/* Responsive margins */
+[style*="margin: 20px"],
+[style*="margin:20px"],
+[style*="marginBottom: 20px"],
+[style*="marginTop: 20px"] {
+  margin: clamp(12px, 3vw, 20px) !important;
+}
+
+/* ============================================
+   COMPONENT-SPECIFIC FIXES
+   ============================================ */
+
+/* Active Positions */
+.active-positions-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Trade History */
+.trade-history-table {
+  min-width: 600px;
+}
+
+/* Bot Control Panel */
+.bot-control {
+  flex-direction: column;
+  align-items: stretch !important;
+}
+
+.bot-control button {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+/* Performance Dashboard Calendar */
+.calendar-grid {
+  font-size: clamp(0.7rem, 2vw, 0.9rem) !important;
+}
+
+.calendar-day {
+  min-width: 40px;
+  min-height: 40px;
+}
+
+/* ML Insights Dashboard */
+.ml-insights-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)) !important;
+}
+
+/* Stats Cards */
+.stat-card {
+  min-width: 150px;
+  padding: clamp(12px, 3vw, 20px) !important;
+}
+
+/* Trading Chart */
+.trading-chart-container {
+  width: 100%;
+  height: clamp(300px, 60vw, 600px);
+  overflow: hidden;
+}
+
+/* ============================================
+   BADGES & TAGS
+   ============================================ */
+
+.badge,
+span[style*="borderRadius"],
+span[style*="border-radius"] {
+  padding: clamp(4px, 1vw, 8px) clamp(8px, 2vw, 12px) !important;
+  font-size: clamp(0.7rem, 2vw, 0.85rem) !important;
+  white-space: nowrap;
+}
+
+/* ============================================
+   MEDIA QUERIES
+   ============================================ */
+
+/* Mobile Portrait */
+@media (max-width: 480px) {
+  main {
+    padding: 10px !important;
+  }
+
+  table th,
+  table td {
+    padding: 6px !important;
+    font-size: 0.75rem !important;
+    min-width: 60px;
+  }
+
+  button {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+
+  /* Stack flex items vertically */
+  div[style*="display: flex"]:not(.no-wrap) {
+    flex-direction: column !important;
+  }
+
+  /* Make grid single column */
+  div[style*="display: grid"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Reduce spacing */
+  [style*="gap"],
+  [style*="gap:"] {
+    gap: 10px !important;
+  }
+}
+
+/* Tablet Portrait */
+@media (min-width: 481px) and (max-width: 768px) {
+  main {
+    padding: 15px !important;
+  }
+
+  table th,
+  table td {
+    padding: 8px !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* 2-column grid on tablets */
+  div[style*="display: grid"] {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)) !important;
+  }
+}
+
+/* Tablet Landscape / Small Desktop */
+@media (min-width: 769px) and (max-width: 1024px) {
+  main {
+    padding: 18px !important;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1025px) {
+  /* Keep original styles */
+  main {
+    padding: 20px !important;
+  }
+}
+
+/* ============================================
+   TOUCH IMPROVEMENTS
+   ============================================ */
+
+/* Increase touch targets */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  a,
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Add more spacing for touch */
+  button + button,
+  a + a {
+    margin-left: 12px;
+  }
+}
+
+/* ============================================
+   SCROLLBAR STYLING (WEBKIT)
+   ============================================ */
+
+/* Thin scrollbars for mobile */
+::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* ============================================
+   ORIENTATION HANDLING
+   ============================================ */
+
+@media (orientation: landscape) and (max-height: 500px) {
+  /* Reduce vertical spacing in landscape */
+  h1, h2, h3, h4 {
+    margin-top: 8px !important;
+    margin-bottom: 8px !important;
+  }
+
+  main {
+    padding: 10px !important;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Add these classes to components that need them */
+
+.mobile-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mobile-hide {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .mobile-hide {
+    display: block;
+  }
+  
+  .desktop-hide {
+    display: none;
+  }
+}
+
+.no-wrap {
+  flex-wrap: nowrap !important;
+}
+
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  * {
+    overflow: visible !important;
+  }
+
+  table {
+    display: table !important;
+  }
+
+  button,
+  nav {
+    display: none !important;
+  }
+}
+

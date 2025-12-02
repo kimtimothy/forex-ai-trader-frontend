@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import './App.css';
+import './mobile-responsive.css'; // Mobile responsive styles for all components
 import Dashboard from './components/Dashboard';
 import MLInsightsDashboard from './components/MLInsightsDashboard';
 import PerformanceDashboard from './components/PerformanceDashboard';
