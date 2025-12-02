@@ -109,21 +109,14 @@ h5:not([class*="MuiTypography"]), h6:not([class*="MuiTypography"]) {
   font-size: clamp(0.9rem, 2.5vw, 1.1rem) !important;
 }
 
-p:not([class*="MuiTypography"]), 
-span:not([class*="Mui"]), 
-div:not([class*="Mui"]) {
-  font-size: clamp(0.85rem, 2.5vw, 1rem);
-}
+/* DO NOT override span/div font sizes - breaks tables */
 
 /* ============================================
    BUTTONS
    ============================================ */
 
 button {
-  padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 20px) !important;
-  font-size: clamp(0.85rem, 2.5vw, 1rem) !important;
-  min-height: 44px; /* Touch target */
-  white-space: nowrap;
+  min-height: 44px; /* Touch target for mobile */
 }
 
 /* Button groups */
@@ -138,8 +131,6 @@ div[style*="display: flex"] button {
 input,
 select,
 textarea {
-  font-size: clamp(0.9rem, 2.5vw, 1rem) !important;
-  padding: clamp(8px, 2vw, 12px) !important;
   min-height: 44px; /* Touch target */
   max-width: 100%;
   box-sizing: border-box;
@@ -231,13 +222,7 @@ div[style*="display: grid"] {
    BADGES & TAGS
    ============================================ */
 
-.badge,
-span[style*="borderRadius"],
-span[style*="border-radius"] {
-  padding: clamp(4px, 1vw, 8px) clamp(8px, 2vw, 12px) !important;
-  font-size: clamp(0.7rem, 2vw, 0.85rem) !important;
-  white-space: nowrap;
-}
+/* Removed - was affecting table content */
 
 /* ============================================
    MEDIA QUERIES
@@ -247,13 +232,6 @@ span[style*="border-radius"] {
 @media (max-width: 480px) {
   main {
     padding: 10px !important;
-  }
-
-  table th,
-  table td {
-    padding: 6px !important;
-    font-size: 0.75rem !important;
-    min-width: 60px;
   }
 
   button {
@@ -273,12 +251,6 @@ span[style*="border-radius"] {
 @media (min-width: 481px) and (max-width: 768px) {
   main {
     padding: 15px !important;
-  }
-
-  table th,
-  table td {
-    padding: 8px !important;
-    font-size: 0.85rem !important;
   }
 
   /* Let components handle their own grid layouts */
