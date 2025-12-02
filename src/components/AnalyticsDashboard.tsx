@@ -51,14 +51,14 @@ const AnalyticsDashboard: React.FC = () => {
   if (!analytics) return null;
 
   // Prepare confluence chart data
-  const confluenceBrackets = Object.keys(analytics.confluence_performance || {}).sort();
+  const confluenceBrackets = Object.keys(analytics?.confluence_performance || {}).sort();
   const confluenceChartData = {
     labels: confluenceBrackets,
     datasets: [
       {
         label: 'Win Rate (%)',
         data: confluenceBrackets.map(
-          bracket => (analytics.confluence_performance[bracket]?.win_rate || 0) * 100
+          bracket => (analytics?.confluence_performance?.[bracket]?.win_rate || 0) * 100
         ),
         backgroundColor: 'rgba(75, 192, 192, 0.6)',
         borderColor: 'rgba(75, 192, 192, 1)',
@@ -154,7 +154,7 @@ const AnalyticsDashboard: React.FC = () => {
                     callbacks: {
                       label: (context) => {
                         const bracket = context.label;
-                        const perf = analytics.confluence_performance[bracket];
+                        const perf = analytics?.confluence_performance?.[bracket];
                         return [
                           `Win Rate: ${context.parsed.y.toFixed(1)}%`,
                           `Trades: ${perf?.trades || 0}`,
@@ -209,9 +209,9 @@ const AnalyticsDashboard: React.FC = () => {
         }}>
           💱 Pair Recommendations
         </h3>
-        {Object.keys(analytics.pair_recommendations || {}).length > 0 ? (
+        {Object.keys(analytics?.pair_recommendations || {}).length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {Object.entries(analytics.pair_recommendations).map(([pair, rec]) => (
+            {Object.entries(analytics?.pair_recommendations || {}).map(([pair, rec]) => (
               <div
                 key={pair}
                 style={{
@@ -292,7 +292,7 @@ const AnalyticsDashboard: React.FC = () => {
         }}>
           🕐 Session Performance
         </h3>
-        {Object.keys(analytics.session_performance || {}).length > 0 ? (
+        {Object.keys(analytics?.session_performance || {}).length > 0 ? (
           <div style={{ 
             overflowX: 'auto',
             WebkitOverflowScrolling: 'touch',
@@ -334,7 +334,7 @@ const AnalyticsDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(analytics.session_performance).map(([pair, sessions]) => (
+                {Object.entries(analytics?.session_performance || {}).map(([pair, sessions]) => (
                   <tr key={pair} style={{ borderBottom: '1px solid #ecf0f1' }}>
                     <td style={{ padding: '10px', fontWeight: 'bold' }}>{pair}</td>
                     {['LONDON', 'NY', 'TOKYO', 'SYDNEY'].map(session => {
@@ -400,7 +400,7 @@ const AnalyticsDashboard: React.FC = () => {
         }}>
           🎭 Regime-Specific Settings
         </h3>
-        {Object.keys(analytics.regime_performance || {}).length > 0 ? (
+        {Object.keys(analytics?.regime_performance || {}).length > 0 ? (
           <div
             style={{
               display: 'grid',
@@ -408,7 +408,7 @@ const AnalyticsDashboard: React.FC = () => {
               gap: 'clamp(10px, 2vw, 15px)',
             }}
           >
-            {Object.entries(analytics.regime_performance).map(([regime, settings]) => (
+            {Object.entries(analytics?.regime_performance || {}).map(([regime, settings]) => (
               <div
                 key={regime}
                 style={{

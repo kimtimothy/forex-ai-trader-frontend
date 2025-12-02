@@ -130,12 +130,12 @@ export interface RegimeSettings {
 }
 
 export interface ComprehensiveAnalytics {
-    confluence_performance: ConfluencePerformance;
+    confluence_performance?: ConfluencePerformance | Record<string, never>;
     optimal_confluence_threshold: number;
     threshold_reason: string;
-    pair_recommendations: { [pair: string]: PairRecommendation };
-    session_performance: SessionPerformance;
-    optimal_sessions?: { [pair: string]: string[] };
+    pair_recommendations?: { [pair: string]: PairRecommendation } | Record<string, never>;
+    session_performance?: SessionPerformance | Record<string, never>;
+    optimal_sessions?: { [pair: string]: string[] } | Record<string, never>;
     regime_performance: { [regime: string]: RegimeSettings };
     last_updated: string;
 }
