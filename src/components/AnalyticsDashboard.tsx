@@ -398,7 +398,7 @@ const AnalyticsDashboard: React.FC = () => {
           color: '#34495e',
           fontSize: 'clamp(1rem, 3.5vw, 1.3rem)'
         }}>
-          🎭 Regime-Specific Performance
+          🎭 Regime-Specific Settings
         </h3>
         {Object.keys(analytics.regime_performance || {}).length > 0 ? (
           <div
@@ -408,7 +408,7 @@ const AnalyticsDashboard: React.FC = () => {
               gap: 'clamp(10px, 2vw, 15px)',
             }}
           >
-            {Object.entries(analytics.regime_performance).map(([regime, data]) => (
+            {Object.entries(analytics.regime_performance).map(([regime, settings]) => (
               <div
                 key={regime}
                 style={{
@@ -428,29 +428,19 @@ const AnalyticsDashboard: React.FC = () => {
                   color: '#7f8c8d' 
                 }}>
                   <div style={{ marginBottom: '5px' }}>
-                    <strong>Win Rate:</strong>{' '}
-                    <span
-                      style={{
-                        color:
-                          data.win_rate >= 0.7
-                            ? '#27ae60'
-                            : data.win_rate >= 0.55
-                            ? '#f39c12'
-                            : '#e74c3c',
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      {(data.win_rate * 100).toFixed(1)}%
+                    <strong>Min Confluence:</strong>{' '}
+                    <span style={{ color: '#3498db', fontWeight: 'bold' }}>
+                      {settings.min_confluence}%
                     </span>
                   </div>
                   <div style={{ marginBottom: '5px' }}>
-                    <strong>Trades:</strong> {data.trades}
+                    <strong>Stop Mult:</strong> {settings.stop_multiplier}x
                   </div>
                   <div style={{ marginBottom: '5px' }}>
-                    <strong>Avg Profit:</strong> ${data.avg_profit.toFixed(2)}
+                    <strong>Target Mult:</strong> {settings.target_multiplier}x
                   </div>
                   <div>
-                    <strong>Avg R:</strong> {data.avg_r_multiple.toFixed(2)}R
+                    <strong>Size Mult:</strong> {settings.size_multiplier}x
                   </div>
                 </div>
               </div>

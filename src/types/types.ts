@@ -126,7 +126,7 @@ export interface RegimeSettings {
     stop_multiplier: number;
     target_multiplier: number;
     size_multiplier: number;
-    confluence_min: number;
+    min_confluence: number;
 }
 
 export interface ComprehensiveAnalytics {
@@ -135,7 +135,8 @@ export interface ComprehensiveAnalytics {
     threshold_reason: string;
     pair_recommendations: { [pair: string]: PairRecommendation };
     session_performance: SessionPerformance;
-    regime_performance: RegimePerformance;
+    optimal_sessions?: { [pair: string]: string[] };
+    regime_performance: { [regime: string]: RegimeSettings };
     last_updated: string;
 }
 
