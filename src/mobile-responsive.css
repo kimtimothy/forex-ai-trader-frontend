@@ -182,40 +182,22 @@ input[type="email"] {
    FLEXBOX LAYOUTS
    ============================================ */
 
-/* Flex containers should wrap on mobile (but NOT MUI Grid) */
-div[style*="display: flex"]:not([class*="MuiGrid"]):not([class*="MuiBox"]) {
-  flex-wrap: wrap;
-  gap: clamp(8px, 2vw, 16px);
-}
+/* Only target specific classes, NOT inline styles */
+/* This prevents overriding component-specific responsive styles */
 
-/* Grid layouts (but NOT MUI Grid) */
-div[style*="display: grid"]:not([class*="MuiGrid"]) {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)) !important;
-  gap: clamp(10px, 2vw, 20px) !important;
-}
-
-/* Don't override MUI Grid system */
-[class*="MuiGrid"] {
-  /* Let MUI handle its own responsive grid */
+/* Don't override MUI Grid system or inline styles */
+[class*="MuiGrid"],
+div[style*="display: flex"],
+div[style*="display: grid"] {
+  /* Let components handle their own responsive layouts */
 }
 
 /* ============================================
-   SPACING (Exclude MUI)
+   SPACING
    ============================================ */
 
-/* Responsive padding (but not MUI) */
-[style*="padding: 20px"]:not([class*="Mui"]),
-[style*="padding:20px"]:not([class*="Mui"]) {
-  padding: clamp(12px, 3vw, 20px) !important;
-}
-
-/* Responsive margins (but not MUI) */
-[style*="margin: 20px"]:not([class*="Mui"]),
-[style*="margin:20px"]:not([class*="Mui"]),
-[style*="marginBottom: 20px"]:not([class*="Mui"]),
-[style*="marginTop: 20px"]:not([class*="Mui"]) {
-  margin: clamp(12px, 3vw, 20px) !important;
-}
+/* Don't override inline styles - components handle their own spacing */
+/* Only apply to elements without inline styles */
 
 /* ============================================
    COMPONENT-SPECIFIC FIXES
@@ -305,20 +287,11 @@ span[style*="border-radius"] {
     margin-bottom: 8px;
   }
 
-  /* Stack flex items vertically (but not MUI) */
-  div[style*="display: flex"]:not(.no-wrap):not([class*="Mui"]) {
+  /* Don't override inline styles on mobile - components handle their own responsive design */
+  
+  /* Only apply to components that don't have responsive inline styles */
+  .needs-mobile-stack {
     flex-direction: column !important;
-  }
-
-  /* Make grid single column (but not MUI Grid) */
-  div[style*="display: grid"]:not([class*="MuiGrid"]) {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* Reduce spacing */
-  [style*="gap"],
-  [style*="gap:"] {
-    gap: 10px !important;
   }
 }
 
@@ -334,10 +307,7 @@ span[style*="border-radius"] {
     font-size: 0.85rem !important;
   }
 
-  /* 2-column grid on tablets */
-  div[style*="display: grid"] {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)) !important;
-  }
+  /* Let components handle their own grid layouts */
 }
 
 /* Tablet Landscape / Small Desktop */
