@@ -90,8 +90,16 @@ const AnalyticsDashboard: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2 style={{ marginBottom: '20px', color: '#2c3e50' }}>
+    <div style={{ 
+      padding: 'clamp(10px, 3vw, 20px)',
+      maxWidth: '100%',
+      overflowX: 'hidden'
+    }}>
+      <h2 style={{ 
+        marginBottom: '20px', 
+        color: '#2c3e50',
+        fontSize: 'clamp(1.2rem, 4vw, 1.8rem)'
+      }}>
         📊 Phase 3: Performance Analytics & Optimization
       </h2>
 
@@ -99,22 +107,36 @@ const AnalyticsDashboard: React.FC = () => {
       <div
         style={{
           background: 'white',
-          padding: '20px',
+          padding: 'clamp(12px, 3vw, 20px)',
           borderRadius: '8px',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          marginBottom: '20px',
+          marginBottom: 'clamp(12px, 3vw, 20px)',
+          width: '100%',
+          overflowX: 'auto',
         }}
       >
-        <h3 style={{ marginBottom: '15px', color: '#34495e' }}>
+        <h3 style={{ 
+          marginBottom: '15px', 
+          color: '#34495e',
+          fontSize: 'clamp(1rem, 3.5vw, 1.3rem)'
+        }}>
           🎯 Confluence Performance
         </h3>
         {confluenceBrackets.length > 0 ? (
           <>
-            <Bar
-              data={confluenceChartData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
+            <div style={{ 
+              position: 'relative',
+              width: '100%',
+              minHeight: '250px',
+              height: 'clamp(250px, 50vw, 400px)',
+              overflowX: 'auto',
+              overflowY: 'hidden'
+            }}>
+              <Bar
+                data={confluenceChartData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
                 scales: {
                   y: {
                     beginAtZero: true,
@@ -143,8 +165,8 @@ const AnalyticsDashboard: React.FC = () => {
                   },
                 },
               }}
-              height={250}
             />
+            </div>
             <div
               style={{
                 marginTop: '15px',
@@ -172,13 +194,19 @@ const AnalyticsDashboard: React.FC = () => {
       <div
         style={{
           background: 'white',
-          padding: '20px',
+          padding: 'clamp(12px, 3vw, 20px)',
           borderRadius: '8px',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          marginBottom: '20px',
+          marginBottom: 'clamp(12px, 3vw, 20px)',
+          width: '100%',
+          overflowX: 'auto',
         }}
       >
-        <h3 style={{ marginBottom: '15px', color: '#34495e' }}>
+        <h3 style={{ 
+          marginBottom: '15px', 
+          color: '#34495e',
+          fontSize: 'clamp(1rem, 3.5vw, 1.3rem)'
+        }}>
           💱 Pair Recommendations
         </h3>
         {Object.keys(analytics.pair_recommendations || {}).length > 0 ? (
@@ -188,38 +216,51 @@ const AnalyticsDashboard: React.FC = () => {
                 key={pair}
                 style={{
                   display: 'flex',
+                  flexWrap: 'wrap',
                   alignItems: 'center',
-                  padding: '12px',
+                  gap: '8px',
+                  padding: 'clamp(10px, 2vw, 12px)',
                   background: '#f8f9fa',
                   borderRadius: '5px',
                   borderLeft: `4px solid ${getActionColor(rec.action)}`,
                 }}
               >
-                <span style={{ fontWeight: 'bold', minWidth: '80px' }}>{pair}</span>
+                <span style={{ 
+                  fontWeight: 'bold', 
+                  minWidth: '70px',
+                  fontSize: 'clamp(0.85rem, 2.5vw, 1rem)'
+                }}>{pair}</span>
                 <span
                   style={{
-                    minWidth: '80px',
+                    minWidth: '60px',
                     color: rec.win_rate >= 0.7 ? '#27ae60' : rec.win_rate >= 0.55 ? '#f39c12' : '#e74c3c',
                     fontWeight: 'bold',
+                    fontSize: 'clamp(0.85rem, 2.5vw, 1rem)'
                   }}
                 >
                   {(rec.win_rate * 100).toFixed(1)}%
                 </span>
                 <span
                   style={{
-                    minWidth: '120px',
-                    padding: '4px 12px',
+                    minWidth: '100px',
+                    padding: '4px 10px',
                     borderRadius: '12px',
                     background: getActionColor(rec.action),
                     color: 'white',
-                    fontSize: '0.85em',
+                    fontSize: 'clamp(0.75rem, 2vw, 0.85rem)',
                     fontWeight: 'bold',
                     textAlign: 'center',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   {getActionEmoji(rec.action)} {rec.action}
                 </span>
-                <span style={{ fontSize: '0.9em', color: '#7f8c8d', marginLeft: 'auto' }}>
+                <span style={{ 
+                  fontSize: 'clamp(0.75rem, 2vw, 0.9rem)', 
+                  color: '#7f8c8d',
+                  flex: '1 1 100%',
+                  marginTop: '4px'
+                }}>
                   {rec.reason} ({rec.total_trades} trades)
                 </span>
               </div>
@@ -236,25 +277,60 @@ const AnalyticsDashboard: React.FC = () => {
       <div
         style={{
           background: 'white',
-          padding: '20px',
+          padding: 'clamp(12px, 3vw, 20px)',
           borderRadius: '8px',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          marginBottom: '20px',
+          marginBottom: 'clamp(12px, 3vw, 20px)',
+          width: '100%',
+          overflowX: 'auto',
         }}
       >
-        <h3 style={{ marginBottom: '15px', color: '#34495e' }}>
+        <h3 style={{ 
+          marginBottom: '15px', 
+          color: '#34495e',
+          fontSize: 'clamp(1rem, 3.5vw, 1.3rem)'
+        }}>
           🕐 Session Performance
         </h3>
         {Object.keys(analytics.session_performance || {}).length > 0 ? (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ 
+            overflowX: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            width: '100%'
+          }}>
+            <table style={{ 
+              width: '100%', 
+              minWidth: '500px',
+              borderCollapse: 'collapse' 
+            }}>
               <thead>
                 <tr style={{ background: '#ecf0f1' }}>
-                  <th style={{ padding: '10px', textAlign: 'left' }}>Pair</th>
-                  <th style={{ padding: '10px', textAlign: 'center' }}>LONDON</th>
-                  <th style={{ padding: '10px', textAlign: 'center' }}>NY</th>
-                  <th style={{ padding: '10px', textAlign: 'center' }}>TOKYO</th>
-                  <th style={{ padding: '10px', textAlign: 'center' }}>SYDNEY</th>
+                  <th style={{ 
+                    padding: 'clamp(8px, 2vw, 10px)', 
+                    textAlign: 'left',
+                    fontSize: 'clamp(0.75rem, 2vw, 0.9rem)',
+                    whiteSpace: 'nowrap'
+                  }}>Pair</th>
+                  <th style={{ 
+                    padding: 'clamp(8px, 2vw, 10px)', 
+                    textAlign: 'center',
+                    fontSize: 'clamp(0.75rem, 2vw, 0.9rem)'
+                  }}>LONDON</th>
+                  <th style={{ 
+                    padding: 'clamp(8px, 2vw, 10px)', 
+                    textAlign: 'center',
+                    fontSize: 'clamp(0.75rem, 2vw, 0.9rem)'
+                  }}>NY</th>
+                  <th style={{ 
+                    padding: 'clamp(8px, 2vw, 10px)', 
+                    textAlign: 'center',
+                    fontSize: 'clamp(0.75rem, 2vw, 0.9rem)'
+                  }}>TOKYO</th>
+                  <th style={{ 
+                    padding: 'clamp(8px, 2vw, 10px)', 
+                    textAlign: 'center',
+                    fontSize: 'clamp(0.75rem, 2vw, 0.9rem)'
+                  }}>SYDNEY</th>
                 </tr>
               </thead>
               <tbody>
@@ -310,34 +386,47 @@ const AnalyticsDashboard: React.FC = () => {
       <div
         style={{
           background: 'white',
-          padding: '20px',
+          padding: 'clamp(12px, 3vw, 20px)',
           borderRadius: '8px',
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          width: '100%',
+          overflowX: 'auto',
         }}
       >
-        <h3 style={{ marginBottom: '15px', color: '#34495e' }}>
+        <h3 style={{ 
+          marginBottom: '15px', 
+          color: '#34495e',
+          fontSize: 'clamp(1rem, 3.5vw, 1.3rem)'
+        }}>
           🎭 Regime-Specific Performance
         </h3>
         {Object.keys(analytics.regime_performance || {}).length > 0 ? (
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '15px',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))',
+              gap: 'clamp(10px, 2vw, 15px)',
             }}
           >
             {Object.entries(analytics.regime_performance).map(([regime, data]) => (
               <div
                 key={regime}
                 style={{
-                  padding: '15px',
+                  padding: 'clamp(12px, 2.5vw, 15px)',
                   background: '#f8f9fa',
                   borderRadius: '8px',
                   border: '2px solid #ecf0f1',
                 }}
               >
-                <h4 style={{ marginBottom: '10px', color: '#2c3e50' }}>{regime}</h4>
-                <div style={{ fontSize: '0.9em', color: '#7f8c8d' }}>
+                <h4 style={{ 
+                  marginBottom: '10px', 
+                  color: '#2c3e50',
+                  fontSize: 'clamp(0.95rem, 3vw, 1.1rem)'
+                }}>{regime}</h4>
+                <div style={{ 
+                  fontSize: 'clamp(0.8rem, 2.2vw, 0.9rem)', 
+                  color: '#7f8c8d' 
+                }}>
                   <div style={{ marginBottom: '5px' }}>
                     <strong>Win Rate:</strong>{' '}
                     <span
@@ -375,7 +464,13 @@ const AnalyticsDashboard: React.FC = () => {
       </div>
 
       {/* Last Updated */}
-      <div style={{ marginTop: '15px', textAlign: 'center', color: '#95a5a6', fontSize: '0.85em' }}>
+      <div style={{ 
+        marginTop: '15px', 
+        textAlign: 'center', 
+        color: '#95a5a6', 
+        fontSize: 'clamp(0.75rem, 2vw, 0.85rem)',
+        padding: '0 10px'
+      }}>
         Last updated: {new Date(analytics.last_updated).toLocaleString()}
       </div>
     </div>
