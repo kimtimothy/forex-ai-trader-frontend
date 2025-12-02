@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
-import { ComprehensiveAnalytics, PairRecommendation, RegimePerformance } from '../types/types';
+import { ComprehensiveAnalytics } from '../types/types';
 
 const AnalyticsDashboard: React.FC = () => {
   const [analytics, setAnalytics] = useState<ComprehensiveAnalytics | null>(null);
