@@ -225,15 +225,26 @@ const ActivePositions: React.FC = () => {
       </div>
 
       {tabValue === 0 && (
-        <div className="modern-table">
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div 
+          className="modern-table"
+          style={{
+            width: '100%',
+            overflowX: 'auto',
+            WebkitOverflowScrolling: 'touch',
+          }}
+        >
+          <table style={{ 
+            width: '100%', 
+            minWidth: '500px', /* Force horizontal scroll on mobile */
+            borderCollapse: 'collapse' 
+          }}>
             <thead>
               <tr>
-                <th>Pair</th>
-                <th>Net Units</th>
-                <th>Avg. Entry</th>
-                <th>Current</th>
-                <th>P/L</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Pair</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Net Units</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Avg. Entry</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Current</th>
+                <th style={{ whiteSpace: 'nowrap' }}>P/L</th>
               </tr>
             </thead>
             <tbody>
@@ -291,20 +302,31 @@ const ActivePositions: React.FC = () => {
       )}
 
       {tabValue === 1 && (
-        <div className="modern-table">
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div 
+          className="modern-table" 
+          style={{ 
+            width: '100%',
+            overflowX: 'auto',
+            WebkitOverflowScrolling: 'touch',
+          }}
+        >
+          <table style={{ 
+            width: '100%', 
+            minWidth: '900px', /* Force horizontal scroll on mobile */
+            borderCollapse: 'collapse' 
+          }}>
             <thead>
               <tr>
-                <th>Time</th>
-                <th>Pair</th>
-                <th>Type</th>
-                <th>Entry</th>
-                <th>Current</th>
-                <th>TP</th>
-                <th>SL</th>
-                <th>Size</th>
-                <th>P/L</th>
-                <th>Actions</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Time</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Pair</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Type</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Entry</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Current</th>
+                <th style={{ whiteSpace: 'nowrap' }}>TP</th>
+                <th style={{ whiteSpace: 'nowrap' }}>SL</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Size</th>
+                <th style={{ whiteSpace: 'nowrap' }}>P/L</th>
+                <th style={{ whiteSpace: 'nowrap' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
