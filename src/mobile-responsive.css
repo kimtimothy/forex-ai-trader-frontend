@@ -54,12 +54,15 @@ main {
 }
 
 /* ============================================
-   TABLES
+   TABLES - Mobile Scrolling Only
    ============================================ */
 
-/* Tables are handled by component-level styles
-   No global overrides needed - components use inline styles
-   with proper scrolling wrappers */
+@media (max-width: 768px) {
+  .modern-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
 
 /* ============================================
    CHARTS

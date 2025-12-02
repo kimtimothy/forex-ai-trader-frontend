@@ -726,29 +726,18 @@ const TradeHistory: React.FC = () => {
         </div>
       )}
 
-      <div 
-        className="modern-table"
-        style={{
-          width: '100%',
-          overflowX: 'auto',
-          WebkitOverflowScrolling: 'touch',
-        }}
-      >
-        <table style={{ 
-          width: '100%', 
-          minWidth: '700px', /* Force horizontal scroll on mobile */
-          borderCollapse: 'collapse' 
-        }}>
+      <div className="modern-table">
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              <th style={{ whiteSpace: 'nowrap' }}>Time</th>
-              <th style={{ whiteSpace: 'nowrap' }}>Pair</th>
-              <th style={{ whiteSpace: 'nowrap' }}>Type</th>
-              <th style={{ whiteSpace: 'nowrap' }}>Entry</th>
-              <th style={{ whiteSpace: 'nowrap' }}>Exit</th>
-              <th style={{ whiteSpace: 'nowrap' }}>P/L</th>
-              <th style={{ whiteSpace: 'nowrap' }}>Confidence</th>
-              <th style={{ whiteSpace: 'nowrap' }}>Status</th>
+              <th>Time</th>
+              <th>Pair</th>
+              <th>Type</th>
+              <th>Entry</th>
+              <th>Exit</th>
+              <th>P/L</th>
+              <th>Confidence</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
