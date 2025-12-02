@@ -57,24 +57,9 @@ main {
    TABLES
    ============================================ */
 
-/* Keep tables at desktop size, make wrapper scrollable */
-.modern-table {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Don't shrink table cells - keep desktop sizing */
-table {
-  /* Let tables maintain their natural/minWidth size */
-  border-collapse: collapse;
-}
-
-/* Keep table text at desktop size, don't wrap */
-table th,
-table td {
-  white-space: nowrap;
-}
+/* Tables are handled by component-level styles
+   No global overrides needed - components use inline styles
+   with proper scrolling wrappers */
 
 /* ============================================
    CHARTS
