@@ -32,16 +32,25 @@ main {
    CARDS & CONTAINERS
    ============================================ */
 
-/* All card-like components */
-[class*="card"],
-[class*="Card"],
-[style*="boxShadow"],
-[style*="box-shadow"] {
+/* All card-like components (but NOT MUI components) */
+[class*="card"]:not([class*="MuiPaper"]):not([class*="MuiCard"]),
+[class*="Card"]:not([class*="MuiPaper"]):not([class*="MuiCard"]) {
   width: 100% !important;
   max-width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
+}
+
+/* Reduce excessive card margins */
+.modern-card {
+  margin-bottom: 16px !important; /* Reduced from 24px */
+}
+
+/* Preserve MUI Paper/Card default behavior */
+[class*="MuiPaper"],
+[class*="MuiCard"] {
+  width: auto !important;
 }
 
 /* ============================================
@@ -103,30 +112,32 @@ div[style*="position: relative"] canvas {
 }
 
 /* ============================================
-   TYPOGRAPHY
+   TYPOGRAPHY (Exclude MUI Typography)
    ============================================ */
 
-h1 {
+h1:not([class*="MuiTypography"]) {
   font-size: clamp(1.5rem, 5vw, 2.5rem) !important;
 }
 
-h2 {
+h2:not([class*="MuiTypography"]) {
   font-size: clamp(1.3rem, 4vw, 2rem) !important;
 }
 
-h3 {
+h3:not([class*="MuiTypography"]) {
   font-size: clamp(1.1rem, 3.5vw, 1.5rem) !important;
 }
 
-h4 {
+h4:not([class*="MuiTypography"]) {
   font-size: clamp(1rem, 3vw, 1.25rem) !important;
 }
 
-h5, h6 {
+h5:not([class*="MuiTypography"]), h6:not([class*="MuiTypography"]) {
   font-size: clamp(0.9rem, 2.5vw, 1.1rem) !important;
 }
 
-p, span, div {
+p:not([class*="MuiTypography"]), 
+span:not([class*="Mui"]), 
+div:not([class*="Mui"]) {
   font-size: clamp(0.85rem, 2.5vw, 1rem);
 }
 
@@ -171,33 +182,38 @@ input[type="email"] {
    FLEXBOX LAYOUTS
    ============================================ */
 
-/* Flex containers should wrap on mobile */
-div[style*="display: flex"] {
+/* Flex containers should wrap on mobile (but NOT MUI Grid) */
+div[style*="display: flex"]:not([class*="MuiGrid"]):not([class*="MuiBox"]) {
   flex-wrap: wrap;
   gap: clamp(8px, 2vw, 16px);
 }
 
-/* Grid layouts */
-div[style*="display: grid"] {
+/* Grid layouts (but NOT MUI Grid) */
+div[style*="display: grid"]:not([class*="MuiGrid"]) {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)) !important;
   gap: clamp(10px, 2vw, 20px) !important;
 }
 
+/* Don't override MUI Grid system */
+[class*="MuiGrid"] {
+  /* Let MUI handle its own responsive grid */
+}
+
 /* ============================================
-   SPACING
+   SPACING (Exclude MUI)
    ============================================ */
 
-/* Responsive padding */
-[style*="padding: 20px"],
-[style*="padding:20px"] {
+/* Responsive padding (but not MUI) */
+[style*="padding: 20px"]:not([class*="Mui"]),
+[style*="padding:20px"]:not([class*="Mui"]) {
   padding: clamp(12px, 3vw, 20px) !important;
 }
 
-/* Responsive margins */
-[style*="margin: 20px"],
-[style*="margin:20px"],
-[style*="marginBottom: 20px"],
-[style*="marginTop: 20px"] {
+/* Responsive margins (but not MUI) */
+[style*="margin: 20px"]:not([class*="Mui"]),
+[style*="margin:20px"]:not([class*="Mui"]),
+[style*="marginBottom: 20px"]:not([class*="Mui"]),
+[style*="marginTop: 20px"]:not([class*="Mui"]) {
   margin: clamp(12px, 3vw, 20px) !important;
 }
 
@@ -289,13 +305,13 @@ span[style*="border-radius"] {
     margin-bottom: 8px;
   }
 
-  /* Stack flex items vertically */
-  div[style*="display: flex"]:not(.no-wrap) {
+  /* Stack flex items vertically (but not MUI) */
+  div[style*="display: flex"]:not(.no-wrap):not([class*="Mui"]) {
     flex-direction: column !important;
   }
 
-  /* Make grid single column */
-  div[style*="display: grid"] {
+  /* Make grid single column (but not MUI Grid) */
+  div[style*="display: grid"]:not([class*="MuiGrid"]) {
     grid-template-columns: 1fr !important;
   }
 
