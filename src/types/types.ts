@@ -86,6 +86,18 @@ export interface EnhancedPosition extends Position {
 
 // ==================== PHASE 3: ANALYTICS ====================
 
+export interface ConfluenceResult {
+    total_score: number;
+    percentage: number;  // NEW: Percentage score (0-100)
+    label: string;  // NEW: Grade label (e.g., "Grade A - Elite Setup (93%)")
+    head_and_shoulders: boolean;
+    double_top_bottom: boolean;  // NEW: Double Top/Bottom pattern detection
+    trend_reason?: string;
+    retest_confirmation?: string;
+    aoi_height_pips?: number;
+    rejection_reason?: string;
+}
+
 export interface ConfluencePerformance {
     [bracket: string]: {
         win_rate: number;

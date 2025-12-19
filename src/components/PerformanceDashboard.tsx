@@ -7,7 +7,13 @@ type Trade = {
   profit_loss: number;
   pair: string;
   // Allow optional confluence if backend logging includes it
-  confluence?: { total_score?: number };
+  confluence?: { 
+    total_score?: number;
+    percentage?: number;  // NEW: PDF-aligned percentage score
+    label?: string;  // NEW: Grade label (A-F)
+    head_and_shoulders?: boolean;
+    double_top_bottom?: boolean;  // NEW: Double pattern detection
+  };
   id?: string;
   type?: string;
   entryPrice?: number;
@@ -141,12 +147,17 @@ const PerformanceDashboard: React.FC = () => {
       });
 
     // Average confluence if available in trades
+    // Prefer percentage if available (PDF-aligned), otherwise use total_score
     const confluences = trades
-      .map(t => Number(t.confluence?.total_score))
+      .map(t => Number(t.confluence?.percentage ?? t.confluence?.total_score))
       .filter(n => !Number.isNaN(n) && Number.isFinite(n));
     const avgConfluence = confluences.length
       ? Math.round(confluences.reduce((s, n) => s + n, 0) / confluences.length)
       : 0;
+    
+    // Count pattern detections
+    const hsPatterns = trades.filter(t => t.confluence?.head_and_shoulders).length;
+    const doublePatterns = trades.filter(t => t.confluence?.double_top_bottom).length;
 
     // Weekly summary (ISO week)
     const weeklyMap = new Map<string, { pnl: number; dates: Set<string> }>();
@@ -185,6 +196,8 @@ const PerformanceDashboard: React.FC = () => {
       largestLoss,
       bestStreak,
       avgConfluence,
+      hsPatterns,
+      doublePatterns,
       weekly,
       recent,
     };
@@ -259,6 +272,12 @@ const PerformanceDashboard: React.FC = () => {
               <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: 'clamp(12px, 2vw, 16px)' }}>
                 <p className="text-slate-400" style={{ fontSize: 11, marginBottom: 4 }}>Avg Confluence</p>
                 <p className="text-white" style={{ fontSize: 'clamp(18px, 4vw, 24px)', fontWeight: 800 }}>{metrics.avgConfluence}%</p>
+                {((metrics.hsPatterns ?? 0) > 0 || (metrics.doublePatterns ?? 0) > 0) && (
+                  <div style={{ marginTop: 6, fontSize: 10, color: '#10b981' }}>
+                    {(metrics.hsPatterns ?? 0) > 0 && <span title="Head & Shoulders patterns">📊 H&S: {metrics.hsPatterns} </span>}
+                    {(metrics.doublePatterns ?? 0) > 0 && <span title="Double Top/Bottom patterns">📈 2x: {metrics.doublePatterns}</span>}
+                  </div>
+                )}
               </div>
             </div>
           </div>
